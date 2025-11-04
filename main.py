@@ -1,3 +1,10 @@
+def calcular_horas_trabajadas(hora_entrada, hora_salida):
+    if hora_salida < hora_entrada:
+        return (24 - hora_entrada) + hora_salida
+    else:
+        return hora_salida - hora_entrada
+# ejemplo de la funcion, ponele que entro alas 18 y salio alas 00, ni apalo laburo 18 horas, entonces la funcion reconoce que es mayor y a 24 le resta 18, dando 6, las 6 horas que laburo
+
 # TODO: añadir error handler y sentencias TRY EXCEPT FINALLY
 # TODO: anañir funciones para modificar el diccionario tipo_trabajos
 # estructura empleados = {id_empleado: [id_trabajo, turno, nombre, apellido, dni, telefono, edad]}
@@ -5,6 +12,7 @@ empleados = {1: [1, "mañana", "Juan", "Perez", "12345678", "555-1234", 30],
              2: [2, "tarde", "Maria", "Gomez", "87654321", "555-5678", 40],
              3: [1, "mañana", "Carlos", "Lopez", "11223344", "555-8765", 25],
              4: [2, "tarde", "Ana", "Martinez", "44332211", "555-4321", 35]}
+
 
 # estructura tipo_trabajos = {(id_trabajo, turno): [puesto, sueldo_hora, area]}
 # Actualmente tenemos id 1: obrero, id 2: gerente
@@ -24,43 +32,101 @@ jornada = {("10/10/2025", 1): [8, 17],
 
 contador_empleado = 5
 
-
 mensaje = "Que operacion quiere realizar: 1 = Agregar Empleado, 2 = Eliminar empleado, 3 = mostrar empleados, 4 = modificar empleado, 5 = Agregar jornada, 6 = Mostrar jornadas, 7 = Modificar horarios jornada, 8 = Eliminar Jornada, 9 = Agregar tipo trabajos, 10 = Mostrar tipos de trabajos, 11 = Modificar Tipo trabajo, 12 = Eliminar tipo trabajo, 13 = calcular monto del dia, 14 = salir: "
 operacion = input(mensaje)
 
-while int(operacion) not in range(1, 15):
+while operacion not in ["1","2","3","4","5","6","7","8","9","10","11","12","13","14"]:
     print("Opcion incorrecta, seleccione una opcion valida!")
     operacion = input(mensaje)
     
 while operacion != "14":
     if operacion == "1":
         bandera = True
-        #modificar esta funcion para que agregue el id del trabajo y el turno
         while bandera:
-            id_trabajo = int(input("Ingrese el id del puesto: 1 = Obrero, 2 = Gerente: "))
-            turno = input("Ingrese el turno del empleado: ")
-            nombre = input("Ingrese el nombre del empleado: ")
-            apellido = input("Ingrese el apellido del empleado: ")
-            dni = input("Ingrese el DNI del empleado: ")
-            telefono = input("Ingrese el telefono del empleado: ")
-            edad = input("Ingrese la edad del empleado: ")
+            while True:
+                id_input = input("Ingrese el id del puesto: 1 = Obrero, 2 = Gerente: ")
+                if id_input in ["1","2"]:
+                    id_trabajo = int(id_input)
+                    break
+                print("El ID debe ser 1 o 2")
+            
+            while True:
+                turno = input("Ingrese el turno del empleado: ")
+                if turno in ["mañana","tarde"]:
+                    break
+                print("el Turno debe ser mañana o tarde")
+            
+            while True:
+                nombre = input("Ingrese el nombre del empleado: ")
+                if nombre.strip():
+                    break
+                print("El nombre no puede estar vacio")
+            # el .strip genera stripers, na mentira verifica que el sting no este vacio, ejemplo: ponen " " entonces el .strip elimina los espacios y el if lo toma como False si esta vacio y como True si esta con algo
+            while True:
+                apellido = input("Ingrese el apellido del empleado: ")
+                if apellido.strip():
+                    break
+                print("El apellido no puede estar vacio")
+            
+            while True:
+                dni = input("Ingrese el DNI del empleado: ")
+                if dni.isdigit() and len(dni) == 8:
+                    dni_existe = False
+                    for empleado_id, datos_empleado in empleados.items():
+                        if datos_empleado[4] == dni: 
+                            dni_existe = True
+                            break
+                    if dni_existe:
+                        print("Ya existe un empleado con ese DNI")
+                    else:
+                        break
+                else:
+                    print("El DNI debe ser de 8 digitos numericos")
+
+#El .isdigit verifica si lo puesto contiene solo numeros y el == 8 verifica que no tenga ni mas ni menos que 8, si no se cumplen esas 2 te corta todo ala mierda
+            
+            while True:
+                telefono = input("Ingrese el telefono del empleado: ")
+                if telefono.strip():
+                    break
+                print("El numero de telefono no puede estar vacio")
+            
+            while True:
+                edad_input = input("Ingrese la edad del empleado: ")
+                if edad_input.isdigit() and 18 <= int(edad_input) <= 65:
+                    edad = int(edad_input)
+                    break
+                print("La edad debe ser un numero entre 18 y 65")
 
             empleados[contador_empleado] = [id_trabajo, turno, nombre, apellido, dni, telefono, edad]
             contador_empleado += 1
             
-            continuar = input("Desea ingresar otro empleado: 1 = Si, 2 = No: ")
-            if (continuar == "2"):
+            while True:
+                continuar = input("Desea ingresar otro empleado: 1 = Si, 2 = No: ")
+                if continuar in ["1","2"]:
+                    break
+                print("Opcion debe ser 1 o 2")
+            if continuar == "2":
                 bandera = False
     
     elif operacion == "2":
-        empleado_a_eliminar = int(input("Ingrese el ID del empleado que quiere eliminar: "))
-
-        if empleado_a_eliminar not in empleados.keys():
-            print("El ID propusto no existe en la base de datos, pruebe con otro ID o revise los existentes.")
-        else :
-            confirmacion = int(input(f"Esta seguro de eliminar el empleado {empleados[empleado_a_eliminar]}, 1 = Si, 2 = No: "))
-            if confirmacion == 1:
-                empleados.pop(id)
+        while True:
+            id_input = input("Ingrese el ID del empleado que quiere eliminar: ")
+            if id_input.isdigit():
+                empleado_a_eliminar = int(id_input)
+                break
+            print("El ID debe ser un numero")
+        
+        if empleado_a_eliminar not in empleados:
+            print("El ID no existe")
+        else:
+            while True:
+                confirmacion = input(f"Esta seguro de eliminar el empleado {empleados[empleado_a_eliminar]}, 1 = Si, 2 = No: ")
+                if confirmacion in ["1","2"]:
+                    break
+                print("La opcion debe ser 1 o 2")
+            if confirmacion == "1":
+                empleados.pop(empleado_a_eliminar)
     
     elif operacion == "3":
         for id, datos in empleados.items():
@@ -68,28 +134,102 @@ while operacion != "14":
             print(f"ID: {id}, nombre: {nombre}, apellido: {apellido}, DNI: {dni}, telefono: {telefono}, ID trabajo: {id_trabajo}, edad: {edad}, turno: {turno}.")
     
     elif operacion == "4":
-        id_empleado_modificar = int(input("Ingrese el ID del empleado que quiere modificar: "))
+        while True:
+            id_input = input("Ingrese el ID del empleado que quiere modificar: ")
+            if id_input.isdigit():
+                id_empleado_modificar = int(id_input)
+                break
+            print("El ID debe ser un numero")
         
-        for id, empleado in empleados.items():
-            if id_empleado_modificar != id:
+        if id_empleado_modificar not in empleados:
+            print("El ID no existe")
+            operacion = input(mensaje)
+            continue
+
+        empleado = empleados[id_empleado_modificar]
+        etiquetas = ["id_trabajo", "turno", "nombre", "apellido", "dni", "telefono", "edad"]
+
+        for i in range(len(empleado)):
+            while True:
+                modificar = input(f"Desea modificar {etiquetas[i]} de {empleado[2]}, {empleado[3]}? 1 = Si, 2 = No: ")
+                if modificar in ["1","2"]:
+                    break
+                print("La opcion debe ser 1 o 2")
+            if modificar != "1":
                 continue
-
-            etiquetas = ["id_trabajo", "turno", "nombre", "apellido", "dni", "telefono", "edad"]
-            id_trabajo, turno, nombre, apellido, dni, telefono, edad = empleado
-
-            for i in range(len(empleado)):
-                modificar = input(f"Desea modificar {etiquetas[i]} de {nombre}, {apellido}? 1 = Si, 2 = No: ")
-                if modificar != "1":
-                    continue
+            
+            while True:
                 nuevo_valor = input(f"Ingrese el nuevo valor de {etiquetas[i]}: ")
-                empleado[i] = nuevo_valor
+                if etiquetas[i] == "id_trabajo":
+                    if nuevo_valor in ["1","2"]:
+                        empleado[i] = int(nuevo_valor)
+                        break
+                    print("La ID trabajo debe ser 1 o 2")
+                elif etiquetas[i] == "turno":
+                    if nuevo_valor in ["mañana","tarde"]:
+                        empleado[i] = nuevo_valor
+                        break
+                    print("El turno debe ser mañana o tarde")
+                elif etiquetas[i] == "edad":
+                    if nuevo_valor.isdigit() and 18 <= int(nuevo_valor) <= 65:
+                        empleado[i] = int(nuevo_valor)
+                        break
+                    print("la Edad debe ser un numero entre 18 y 65")
+                elif etiquetas[i] == "dni":
+                    if nuevo_valor.isdigit() and len(nuevo_valor) == 8:
+                        dni_existe = False
+                        for emp_id, datos_emp in empleados.items():
+                            if emp_id != id_empleado_modificar and datos_emp[4] == nuevo_valor:
+                                dni_existe = True
+                                break
+                        if dni_existe:
+                            print("Ya existe un empleado con ese DNI")
+                        else:
+                            empleado[i] = nuevo_valor
+                            break
+                    else:
+                        print("El DNI debe ser 8 digitos")        
+                else:
+                    if nuevo_valor.strip():
+                        empleado[i] = nuevo_valor
+                        break
+                    print("El campo no puede estar vacio")
 
     elif operacion == "5":
-        fecha = input("Ingrese la fecha de la jornada (DD/MM/AAAA): ")
-        id_empleado = input("Ingrese el ID del empleado: ")
-        horario_entrada = int(input("Ingrese la hora de entrada (formato 24hs): "))
-        horario_salida = int(input("Ingrese la hora de salida (formato 24hs): "))
-        jornada [(fecha, id_empleado)] = [horario_entrada, horario_salida]
+        while True:
+            fecha = input("Ingrese la fecha de la jornada (DD/MM/AAAA): ")
+            if fecha.strip():
+                break
+            print("La fecha no puede estar vacia")
+        
+        while True:
+            id_input = input("Ingrese el ID del empleado: ")
+            if id_input.isdigit():
+                id_empleado = int(id_input)
+                break
+            print("La ID debe ser numero")
+        
+        if id_empleado not in empleados:
+            print("El empleado no existe")
+            operacion = input(mensaje)
+            continue
+        
+        while True:
+            entrada_input = input("Ingrese la hora de entrada (formato 24hs): ")
+            if entrada_input.isdigit() and 00 <= int(entrada_input) <= 23:
+                horario_entrada = int(entrada_input)
+                break
+            print("La hora debe ser entre 00 y 23")
+        
+        while True:
+            salida_input = input("Ingrese la hora de salida (formato 24hs): ")
+            if salida_input.isdigit() and 00 <= int(salida_input) <= 23:
+                horario_salida = int(salida_input)
+                break
+            print("La hora debe ser entre 00 y 23")
+        
+        jornada[(fecha, id_empleado)] = [horario_entrada, horario_salida]
+        print("Jornada agregada correctamente")
     
     elif operacion == "6":
         for id_jornada, datos_jornada in jornada.items():
@@ -98,41 +238,109 @@ while operacion != "14":
             print(f"Fecha: {fecha}, ID Empleado: {id_empleado}, Hora Entrada: {horario_entrada}, Hora Salida: {horario_salida}.")
     
     elif operacion == "7":
-        fecha_modificar = input("Ingrese la fecha de la jornada que quiere modificar (DD/MM/AAAA): ")
-        id_empleado_modificar = int(input("Ingrese el ID del empleado de la jornada que quiere modificar: "))
+        while True:
+            fecha_modificar = input("Ingrese la fecha de la jornada que quiere modificar (DD/MM/AAAA): ")
+            if fecha_modificar.strip():
+                break
+            print("La fecha no puede estar vacia")
+        
+        while True:
+            id_input = input("Ingrese el ID del empleado de la jornada que quiere modificar: ")
+            if id_input.isdigit():
+                id_empleado_modificar = int(id_input)
+                break
+            print("La ID debe ser numero")
 
-        for id_jornada, datos_jornada in jornada.items():
+        if (fecha_modificar, id_empleado_modificar) not in jornada:
+            print("Jornada no encontrada")
+            operacion = input(mensaje)
+            continue
 
-            etiquetas = ["Horario de entrada", "Horario de Salida"]
-            if fecha_modificar != id_jornada[0] or id_empleado_modificar != id_jornada[1]:
-                continue
-
-            for i in range(len(datos_jornada)):
+        datos_jornada = jornada[(fecha_modificar, id_empleado_modificar)]
+        etiquetas = ["Horario de entrada", "Horario de Salida"]
+        
+        for i in range(len(datos_jornada)):
+            while True:
                 modificar = input(f"Desea modificar {etiquetas[i]}? 1 = Si, 2 = No: ")
-                if modificar != "1":
-                    continue
+                if modificar in ["1","2"]:
+                    break
+                print("La opcion debe ser 1 o 2")
+            if modificar != "1":
+                continue
+            
+            while True:
                 nuevo_valor = input(f"Ingrese el nuevo valor de {etiquetas[i]}: ")
-                datos_jornada[i] = int(nuevo_valor)
+                if nuevo_valor.isdigit() and 00 <= int(nuevo_valor) <= 23:
+                    datos_jornada[i] = int(nuevo_valor)
+                    break
+                print("La hora debe ser entre 00 y 23")
 
     elif operacion == "8":
-        fecha_eliminar = input("Ingrese la fecha de la jornada que quiere eliminar (DD/MM/AAAA): ")
-        id_empleado_eliminar = int(input("Ingrese el ID del empleado de la jornada que quiere eliminar: "))
+        while True:
+            fecha_eliminar = input("Ingrese la fecha de la jornada que quiere eliminar (DD/MM/AAAA): ")
+            if fecha_eliminar.strip():
+                break
+            print("La fecha no puede estar vacia")
+        
+        while True:
+            id_input = input("Ingrese el ID del empleado de la jornada que quiere eliminar: ")
+            if id_input.isdigit():
+                id_empleado_eliminar = int(id_input)
+                break
+            print("La ID debe ser numero")
 
-        if (fecha_eliminar, id_empleado_eliminar) not in jornada.keys():
-            print("La jornada propuesta no existe en la base de datos, pruebe con otra jornada o revise las existentes.")
+        if (fecha_eliminar, id_empleado_eliminar) not in jornada:
+            print("La jornada no existe")
         else:
-            confirmacion = input(f"Esta seguro de eliminar la jornada del empleado con ID {id_empleado_eliminar} en la fecha {fecha_eliminar}, 1 = Si, 2 = No: ")
+            while True:
+                confirmacion = input(f"Esta seguro de eliminar la jornada del empleado con ID {id_empleado_eliminar} en la fecha {fecha_eliminar}, 1 = Si, 2 = No: ")
+                if confirmacion in ["1","2"]:
+                    break
+                print("La opcion debe ser 1 o 2")
             if confirmacion == "1":
                 jornada.pop((fecha_eliminar, id_empleado_eliminar))
+                print("Jornada eliminada correctamente")
 
     elif operacion == "9":
-        id_trabajo = int(input("Ingrese el ID del puesto: "))
-        turno_trabajo = input("Ingrese el turno del puesto (Mañana o Tarde): ").lower()
-        puesto = input("Ingrese el nombre del puesto: ")
-        sueldo_hora = int(input("Ingrese el sueldo por hora del puesto: "))
-        area = input("Ingrese el area del puesto: ")
+        while True:
+            id_input = input("Ingrese el ID del puesto: ")
+            if id_input.isdigit():
+                id_trabajo = int(id_input)
+                break
+            print("La ID debe ser numero")
+        
+        while True:
+            turno_trabajo = input("Ingrese el turno del puesto (Mañana o Tarde): ").lower()
+            if turno_trabajo in ["mañana","tarde"]:
+                break
+            print("Turno debe ser mañana o tarde")
+        
+        if (id_trabajo, turno_trabajo) in tipo_trabajos:
+            print("Ya hay un puesto con esa ID y turno")
+            operacion = input(mensaje)
+            continue
+
+        while True:
+            puesto = input("Ingrese el nombre del puesto: ")
+            if puesto.strip():
+                break
+            print("Puesto no puede estar vacio")
+        
+        while True:
+            sueldo_input = input("Ingrese el sueldo por hora del puesto: ")
+            if sueldo_input.isdigit() and int(sueldo_input) > 0:
+                sueldo_hora = int(sueldo_input)
+                break
+            print("Sueldo debe ser numero positivo")
+        
+        while True:
+            area = input("Ingrese el area del puesto: ")
+            if area.strip():
+                break
+            print("Area no puede estar vacia")
 
         tipo_trabajos[(id_trabajo, turno_trabajo)] = [puesto, sueldo_hora, area]
+        print("Tipo de trabajo agregado correctamente")
 
     elif operacion == "10":
         for id_tipo_trabajo, datos_tipo_trabajo in tipo_trabajos.items():
@@ -141,58 +349,130 @@ while operacion != "14":
             print(f"ID Puesto: {id_puesto}, Turno: {turno}, Puesto: {puesto}, Sueldo por hora: {sueldo_hora}, Area: {area}.")
 
     elif operacion == "11":
-        id_puesto_modificar = int(input("Ingrese el ID del puesto que quiere modificar: "))
-        turno_modificar = input("Ingrese el turno del puesto que quiere modificar (Mañana o Tarde): ").lower()
+        while True:
+            id_input = input("Ingrese el ID del puesto que quiere modificar: ")
+            if id_input.isdigit():
+                id_puesto_modificar = int(id_input)
+                break
+            print("ID debe ser numero")
+        
+        while True:
+            turno_modificar = input("Ingrese el turno del puesto que quiere modificar (Mañana o Tarde): ").lower()
+            if turno_modificar in ["mañana","tarde"]:
+                break
+            print("Turno debe ser mañana o tarde")
 
-        for id_tipo_trabajo, datos_tipo_trabajo in tipo_trabajos.items():
-            if id_puesto_modificar != id_tipo_trabajo[0] or turno_modificar != id_tipo_trabajo[1]:
-                continue
+        if (id_puesto_modificar, turno_modificar) not in tipo_trabajos:
+            print("Tipo de trabajo no existe")
+            operacion = input(mensaje)
+            continue
 
-            etiquetas = ["puesto", "sueldo_hora", "area"]
-            puesto, sueldo_hora, area = datos_tipo_trabajo
+        datos_tipo_trabajo = tipo_trabajos[(id_puesto_modificar, turno_modificar)]
+        etiquetas = ["puesto", "sueldo_hora", "area"]
 
-            for i in range(len(datos_tipo_trabajo)):
+        for i in range(len(datos_tipo_trabajo)):
+            while True:
                 modificar = input(f"Desea modificar {etiquetas[i]}? 1 = Si, 2 = No: ")
-                if modificar != "1":
-                    continue
+                if modificar in ["1","2"]:
+                    break
+                print("Opcion debe ser 1 o 2")
+            if modificar != "1":
+                continue
+            
+            while True:
                 nuevo_valor = input(f"Ingrese el nuevo valor de {etiquetas[i]}: ")
                 if etiquetas[i] == "sueldo_hora":
-                    nuevo_valor = int(nuevo_valor)
-                datos_tipo_trabajo[i] = nuevo_valor
+                    if nuevo_valor.isdigit() and int(nuevo_valor) > 0:
+                        datos_tipo_trabajo[i] = int(nuevo_valor)
+                        break
+                    print("Sueldo debe ser numero positivo")
+                else:
+                    if nuevo_valor.strip():
+                        datos_tipo_trabajo[i] = nuevo_valor
+                        break
+                    print("El campo no puede estar vacio")
 
     elif operacion == "12":
-        id_puesto_eliminar = int(input("Ingrese el ID del puesto que quiere eliminar: "))
-        turno_eliminar = input("Ingrese el turno del puesto que quiere eliminar (Mañana o Tarde): ").lower()
+        while True:
+            id_input = input("Ingrese el ID del puesto que quiere eliminar: ")
+            if id_input.isdigit():
+                id_puesto_eliminar = int(id_input)
+                break
+            print("ID debe ser numero")
+        
+        while True:
+            turno_eliminar = input("Ingrese el turno del puesto que quiere eliminar (Mañana o Tarde): ").lower()
+            if turno_eliminar in ["mañana","tarde"]:
+                break
+            print("Turno debe ser mañana o tarde")
 
-        if (id_puesto_eliminar, turno_eliminar) not in tipo_trabajos.keys():
-            print("El tipo de trabajo propuesto no existe en la base de datos, pruebe con otro tipo de trabajo o revise los existentes.")
+        if (id_puesto_eliminar, turno_eliminar) not in tipo_trabajos:
+            print("El tipo de trabajo no existe")
         else:
-            confirmacion = input(f"Esta seguro de eliminar el tipo de trabajo con ID {id_puesto_eliminar} y turno {turno_eliminar}, 1 = Si, 2 = No: ")
+            while True:
+                confirmacion = input(f"Esta seguro de eliminar el tipo de trabajo con ID {id_puesto_eliminar} y turno {turno_eliminar}, 1 = Si, 2 = No: ")
+                if confirmacion in ["1","2"]:
+                    break
+                print("Opcion debe ser 1 o 2")
             if confirmacion == "1":
                 tipo_trabajos.pop((id_puesto_eliminar, turno_eliminar))
+                print("Tipo de trabajo eliminado correctamente")
 
     elif operacion == "13":
-        fecha_calcular = input("Ingrese la fecha que quiere calcular: ")
-        id_empleado_calcular = int(input("Ingrese el ID del empleado que quiere calcular: "))
-        turno_calcular = input("Ingrese el turno del empleado que quiere calcular (Mañana o Tarde): ").lower()
+        while True:
+            fecha_calcular = input("Ingrese la fecha que quiere calcular: ")
+            if fecha_calcular.strip():
+                break
+            print("Fecha no puede estar vacia")
+        
+        while True:
+            id_input = input("Ingrese el ID del empleado que quiere calcular: ")
+            if id_input.isdigit():
+                id_empleado_calcular = int(id_input)
+                break
+            print("ID debe ser numero")
 
-        for id_jornada, datos_jornada in jornada.items():
-            horario_entrada = datos_jornada[0]
-            horario_salida = datos_jornada[1]
+        if id_empleado_calcular not in empleados:
+            print("El empleado no existe")
+            operacion = input(mensaje)
+            continue
 
-            if fecha_calcular == id_jornada[0] and id_empleado_calcular == id_jornada[1]:
-                horas_trabajadas = horario_salida - horario_entrada
+        clave_jornada = (fecha_calcular, id_empleado_calcular)
+        if clave_jornada not in jornada:
+            print("No existe jornada para esa fecha y empleado")
+            operacion = input(mensaje)
+            continue
 
-                if horas_trabajadas > 8:
-                    horas_extra = horas_trabajadas - 8
-                    horas_trabajadas -= horas_extra
+        id_trabajo_empleado = empleados[id_empleado_calcular][0]
+        turno_empleado = empleados[id_empleado_calcular][1]
+        clave_trabajo = (id_trabajo_empleado, turno_empleado)
+        
+        if clave_trabajo not in tipo_trabajos:
+            print("No existe configuracion de salario para ese puesto y turno")
+            operacion = input(mensaje)
+            continue
 
-                for id_tipo_trabajo, datos_tipo_trabajo in tipo_trabajos.items():
-                    id_puesto = id_tipo_trabajo[0]
-                    turno_puesto = id_tipo_trabajo[1]
-                    sueldo_hora = datos_tipo_trabajo[1]
-                    if id_puesto == id_empleado_calcular and turno_calcular == turno_puesto:
-                        monto_dia = horas_trabajadas * sueldo_hora + horas_extra * (sueldo_hora * 1.5)
-                        print("El monto del dia es: ", monto_dia)
+        datos_jornada = jornada[clave_jornada]
+        horario_entrada = datos_jornada[0]
+        horario_salida = datos_jornada[1]
+        
+        horas_trabajadas = calcular_horas_trabajadas(horario_entrada, horario_salida)
+        horas_extra = 0
+
+        if horas_trabajadas > 8:
+            horas_extra = horas_trabajadas - 8
+            horas_normales = 8
+        else:
+            horas_normales = horas_trabajadas
+
+        sueldo_hora = tipo_trabajos[clave_trabajo][1]
+        monto_dia = horas_normales * sueldo_hora + horas_extra * (sueldo_hora * 1.5)
+        
+        nombre_empleado = empleados[id_empleado_calcular][2]
+        apellido_empleado = empleados[id_empleado_calcular][3]
+        print(f"Empleado: {nombre_empleado} {apellido_empleado}")
+        print(f"Horas trabajadas: {horas_trabajadas} (Normales: {horas_normales}, Extra: {horas_extra})")
+        print(f"Sueldo por hora: ${sueldo_hora}")
+        print(f"Monto del dia: ${monto_dia:.2f}")
 
     operacion = input(mensaje)
