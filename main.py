@@ -559,6 +559,21 @@ while operacion != "19":
         else:
             print("No se encontro la fecha especificada")
 
+    elif operacion == "16":
+        empleado_eliminar = input("Ingrese el ID del empleado a eliminar el monto: ")
+        periodo_eliminar = input("Ingrese el periodo a eliminar (MM/YYYY): ")
+        fecha_eliminar = input("Ingrese la fecha a eliminar (DD/MM/YYYY): ")
+        
+        montos = montos_diarios[empleado_eliminar][periodo_eliminar]
+        
+        for i in range(len(montos)):
+            if montos[i][0] == fecha_eliminar:
+                montos.pop(i)
+                print("Monto eliminado correctamente")
+                break
+        else:
+            print("No se encontro la fecha especificada")
+
     elif operacion == "17":
         empleado_liquidar = input("Ingrese el ID del empleado a liquidar: ")
         periodo_liquidar = input("Ingrese el periodo a liquidar (MM/YYYY): ")
