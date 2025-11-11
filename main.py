@@ -42,25 +42,14 @@ contador_empleado = 5
 id_liquidacion = 1
 
 mensaje = """Que operacion quiere realizar: 
-1 = Agregar Empleado
-2 = Eliminar empleado
-3 = mostrar empleados
-4 = modificar empleado
-5 = Agregar jornada
-6 = Mostrar jornadas
-7 = Modificar horarios jornada
-8 = Eliminar Jornada
-9 = Agregar tipo trabajos
-10 = Mostrar tipos de trabajos
-11 = Modificar Tipo trabajo
-12 = Eliminar tipo trabajo 
-13 = Calcular monto del dia
-14 = Mostrar montos 
-15 = Actualizar monto # 
-16 = Eliminar monto #
-17 = Calcular liquidacion de empleado
-18 = Mostrar liquidaciones
-19 = salir: """
+Empleado:           1 = Agregar Empleado, 2 = Eliminar empleado, 3 = mostrar empleados, 4 = modificar empleado.
+Jornadas:           5 = Agregar jornada, 6 = Mostrar jornadas, 7 = Modificar horarios jornada, 8 = Eliminar Jornada.
+Cargos laborales:   9 = Agregar tipo trabajos, 10 = Mostrar tipos de trabajos, 11 = Modificar Tipo trabajo, 12 = Eliminar tipo trabajo.
+Montos diarios:     13 = Calcular monto, 14 = Mostrar montos, 15 = Actualizar monto, 16 = Eliminar monto.
+Liquidaciones:      17 = Calcular liquidacion de empleado, 18 = Mostrar liquidaciones
+Para salir de la aplicacion = Ingrese "19".
+------------------------------
+Ingrese la operacion a realizar:"""
 
 operacion = input(mensaje)
 
@@ -525,7 +514,6 @@ while operacion != "19":
         # Añadir el registro del día (no anidar doblemente la lista)
         montos_diarios[id_empleado_calcular][periodo].append([fecha_calcular, monto_dia, horas_trabajadas, horas_extra])
             
-
     elif operacion == "14":
         if not montos_diarios:
             print("No hay montos diarios registrados")
