@@ -49,7 +49,7 @@ Montos diarios:     13 = Calcular monto, 14 = Mostrar montos, 15 = Actualizar mo
 Liquidaciones:      17 = Calcular liquidacion de empleado, 18 = Mostrar liquidaciones
 Para salir de la aplicacion = Ingrese "19".
 ------------------------------
-Ingrese la operacion a realizar:"""
+Ingrese la operacion a realizar: """
 
 operacion = input(mensaje)
 
@@ -512,7 +512,14 @@ while operacion != "19":
         if periodo not in montos_diarios[id_empleado_calcular]:
             montos_diarios[id_empleado_calcular][periodo] = []
         # Añadir el registro del día (no anidar doblemente la lista)
-        montos_diarios[id_empleado_calcular][periodo].append([fecha_calcular, monto_dia, horas_trabajadas, horas_extra])
+
+        for monto in montos_diarios[id_empleado_calcular][periodo]:
+            if monto[0] == fecha_calcular:
+                print("Ya existe un monto registrado para ese dia y empleado")
+                break
+            else:
+                montos_diarios[id_empleado_calcular][periodo].append([fecha_calcular, monto_dia, horas_trabajadas, horas_extra])
+        
             
     elif operacion == "14":
         if not montos_diarios:
