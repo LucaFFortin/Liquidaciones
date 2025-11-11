@@ -32,7 +32,23 @@ jornada = {("10/10/2025", 1): [8, 17],
 
 contador_empleado = 5
 
-mensaje = "Que operacion quiere realizar: 1 = Agregar Empleado, 2 = Eliminar empleado, 3 = mostrar empleados, 4 = modificar empleado, 5 = Agregar jornada, 6 = Mostrar jornadas, 7 = Modificar horarios jornada, 8 = Eliminar Jornada, 9 = Agregar tipo trabajos, 10 = Mostrar tipos de trabajos, 11 = Modificar Tipo trabajo, 12 = Eliminar tipo trabajo, 13 = calcular monto del dia, 14 = salir: "
+mensaje = """
+Que operacion quiere realizar:
+1 = Agregar Empleado
+2 = Eliminar empleado
+3 = mostrar empleados
+4 = modificar empleado
+5 = Agregar jornada
+6 = Mostrar jornadas
+7 = Modificar horarios jornada
+8 = Eliminar Jornada
+9 = Agregar tipo trabajos
+10 = Mostrar tipos de trabajos
+11 = Modificar Tipo trabajo
+12 = Eliminar tipo trabajo
+13 = calcular monto del dia
+14 = salir: """
+
 operacion = input(mensaje)
 
 while operacion not in ["1","2","3","4","5","6","7","8","9","10","11","12","13","14"]:
