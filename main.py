@@ -46,18 +46,18 @@ Empleado:           1 = Agregar Empleado, 2 = Eliminar empleado, 3 = mostrar emp
 Jornadas:           5 = Agregar jornada, 6 = Mostrar jornadas, 7 = Modificar horarios jornada, 8 = Eliminar Jornada.
 Cargos laborales:   9 = Agregar tipo trabajos, 10 = Mostrar tipos de trabajos, 11 = Modificar Tipo trabajo, 12 = Eliminar tipo trabajo.
 Montos diarios:     13 = Calcular monto, 14 = Mostrar montos, 15 = Actualizar monto, 16 = Eliminar monto.
-Liquidaciones:      17 = Calcular liquidacion de empleado, 18 = Mostrar liquidaciones
-Para salir de la aplicacion = Ingrese "19".
+Liquidaciones:      17 = Calcular liquidacion de empleado, 18 = Mostrar liquidaciones, 19 = eliminar liquidación.
+Para salir de la aplicacion = Ingrese "20".
 ------------------------------
 Ingrese la operacion a realizar: """
 
 operacion = input(mensaje)
 
-while operacion not in ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19"]:
+while operacion not in ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"]:
     print("Opcion incorrecta, seleccione una opcion valida!")
     operacion = input(mensaje)
     
-while operacion != "19":
+while operacion != "20":
     if operacion == "1":
         bandera = True
         while bandera:
@@ -518,9 +518,8 @@ while operacion != "19":
                 print("Ya existe un monto registrado para ese dia y empleado")
                 break
             else:
-                montos_diarios[id_empleado_calcular][periodo].append([fecha_calcular, monto_dia, horas_trabajadas, horas_extra])
-        
-            
+                montos_diarios[id_empleado_calcular][periodo].append([fecha_calcular, monto_dia, horas_trabajadas, horas_extra])       
+
     elif operacion == "14":
         if not montos_diarios:
             print("No hay montos diarios registrados")
@@ -535,7 +534,7 @@ while operacion != "19":
                         print(f"Dia: {dia}, monto: {monto}, horas trabajadas: {horas_trabajadas}, horas extra: {horas_extra}")
 
     elif operacion == "15":
-        empleado_actualizar = input("Ingrese el ID del empleado a actualizar el monto: ")
+        empleado_actualizar = int(input("Ingrese el ID del empleado a actualizar el monto: "))
         periodo_actualizar = input("Ingrese el periodo a actualizar (MM/YYYY): ")
         fecha_actualizar = input("Ingrese la fecha a actualizar (DD/MM/YYYY): ")
         
@@ -555,7 +554,7 @@ while operacion != "19":
             print("No se encontro la fecha especificada")
 
     elif operacion == "16":
-        empleado_eliminar = input("Ingrese el ID del empleado a eliminar el monto: ")
+        empleado_eliminar = int(input("Ingrese el ID del empleado a eliminar el monto: "))
         periodo_eliminar = input("Ingrese el periodo a eliminar (MM/YYYY): ")
         fecha_eliminar = input("Ingrese la fecha a eliminar (DD/MM/YYYY): ")
         
@@ -598,5 +597,25 @@ while operacion != "19":
             for clave, datos in liquidaciones.items():
                 empleado, bruto, horas_extra, deducciones, periodo = datos
                 print(f"ID Liquidacion: {clave}, Empleado: {empleado}, Sueldo Bruto: {bruto}, Horas Extra: {horas_extra}, Deducciones: {deducciones}, Periodo: {periodo}.")
+    
+    elif operacion == "19":
+        while True:
+            id_input = input("Ingrese el ID de la liquidacion que quiere eliminar: ")
+            if id_input.isdigit():
+                id_liquidacion_eliminar = int(id_input)
+                break
+            print("El ID debe ser un numero")
         
+        if id_liquidacion_eliminar not in liquidaciones:
+            print("La liquidacion no existe")
+        else:
+            while True:
+                confirmacion = input(f"Esta seguro de eliminar la liquidacion con ID {id_liquidacion_eliminar}, 1 = Si, 2 = No: ")
+                if confirmacion in ["1","2"]:
+                    break
+                print("La opcion debe ser 1 o 2")
+            if confirmacion == "1":
+                liquidaciones.pop(id_liquidacion_eliminar)
+                print("Liquidacion eliminada correctamente")
+
     operacion = input(mensaje)
