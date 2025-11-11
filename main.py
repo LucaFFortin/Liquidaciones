@@ -30,32 +30,22 @@ jornada = {("10/10/2025", 1): [8, 17],
            ("12/10/2025", 3): [8, 16],
            ("13/10/2025", 4): [9, 17]}
 
+# Estructura montos_diarios = {id_empleado: {periodo: [[dia, monto], [dia, monto]]}}
+# el periodo tiene el formato MM/AAAA
+montos_diarios = {
+    
+}
+
 contador_empleado = 5
 
-mensaje = """
-Que operacion quiere realizar:
-1 = Agregar Empleado
-2 = Eliminar empleado
-3 = mostrar empleados
-4 = modificar empleado
-5 = Agregar jornada
-6 = Mostrar jornadas
-7 = Modificar horarios jornada
-8 = Eliminar Jornada
-9 = Agregar tipo trabajos
-10 = Mostrar tipos de trabajos
-11 = Modificar Tipo trabajo
-12 = Eliminar tipo trabajo
-13 = calcular monto del dia
-14 = salir: """
-
+mensaje = "Que operacion quiere realizar: 1 = Agregar Empleado\n 2 = Eliminar empleado\n 3 = mostrar empleados \n 4 = modificar empleado \n 5 = Agregar jornada \n 6 = Mostrar jornadas \n 7 = Modificar horarios jornada \n 8 = Eliminar Jornada \n 9 = Agregar tipo trabajos \n 10 = Mostrar tipos de trabajos \n 11 = Modificar Tipo trabajo \n 12 = Eliminar tipo trabajo \n 13 = Calcular monto del dia \n 14 = Calcular liquidacion de empleado \n (#Agregar liquidacion y #Mostrar liquidaciones), 15 = salir: "
 operacion = input(mensaje)
 
-while operacion not in ["1","2","3","4","5","6","7","8","9","10","11","12","13","14"]:
+while operacion not in ["1","2","3","4","5","6","7","8","9","10","11","12","13","14", "15"]:
     print("Opcion incorrecta, seleccione una opcion valida!")
     operacion = input(mensaje)
     
-while operacion != "14":
+while operacion != "15":
     if operacion == "1":
         bandera = True
         while bandera:
@@ -446,7 +436,7 @@ while operacion != "14":
             if id_input.isdigit():
                 id_empleado_calcular = int(id_input)
                 break
-            print("ID debe ser numero")
+            print("ID debe ser numerico")
 
         if id_empleado_calcular not in empleados:
             print("El empleado no existe")
@@ -490,5 +480,31 @@ while operacion != "14":
         print(f"Horas trabajadas: {horas_trabajadas} (Normales: {horas_normales}, Extra: {horas_extra})")
         print(f"Sueldo por hora: ${sueldo_hora}")
         print(f"Monto del dia: ${monto_dia:.2f}")
+        
+        if montos_diarios[id_empleado_calcular][fecha_calcular[3:]]:
+            montos_diarios[id_empleado_calcular][fecha_calcular[3:]].append([[fecha_calcular, monto_dia]])
+        else:
+            montos_diarios[id_empleado_calcular][fecha_calcular[3:]] = [[fecha_calcular, monto_dia]]
 
+    elif operacion == "14":
+        empleado_liquidar = input("Ingrese el ID del empleado a liquidar: ")
+        periodo_liquidar = input("Ingrese el periodo a liquidar (MM/YYYY): ")
+        
+        montos = montos_diarios[empleado_liquidar][periodo_liquidar]
+        
+        total = 0
+        
+        for monto in montos:
+            total += monto[1]
+        
+        jubilacion = total * 0.11
+        total -= jubilacion
+        pensiones = total * 0.03
+        obra_social =total * 0.03
+        bruto = total
+        neto = total - jubilacion - pensiones - obra_social
+        print("Sueldo bruto: ", bruto, "\n Deduccion pension: ", pensiones, "\n Deducion obra social: ", obra_social ,  "\n Total: ", total)    
+        
+        
+        
     operacion = input(mensaje)
