@@ -84,8 +84,8 @@ montos_diarios = {
     id_empleado: 
         {periodo: 
             [
-                [dia, monto, horas_trabajadas, horas_extra], 
-                [dia, monto, horas_trabajadas, horas_extra]
+                [fecha, monto, horas_trabajadas, horas_extra], 
+                [fecha, monto, horas_trabajadas, horas_extra]
             ]
         }
     }
@@ -93,5 +93,5 @@ montos_diarios = {
 # Valor:        diccionario de periodos,          List<3>
 # Lista de datos:
 # Periodo:      Mes y año                         STR
-# Dia:          Dia del periodo                   STR
+# Fecha:        Fecha del periodo                 STR
 # Monto:        Total diario                      FLOAT
