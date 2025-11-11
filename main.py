@@ -6,46 +6,62 @@ def calcular_horas_trabajadas(hora_entrada, hora_salida):
 # ejemplo de la funcion, ponele que entro alas 18 y salio alas 00, ni apalo laburo 18 horas, entonces la funcion reconoce que es mayor y a 24 le resta 18, dando 6, las 6 horas que laburo
 
 # TODO: añadir error handler y sentencias TRY EXCEPT FINALLY
-# TODO: anañir funciones para modificar el diccionario tipo_trabajos
-# estructura empleados = {id_empleado: [id_trabajo, turno, nombre, apellido, dni, telefono, edad]}
+
+# Estructura empleados = {id_empleado: [id_trabajo, turno, nombre, apellido, dni, telefono, edad]}
 empleados = {1: [1, "mañana", "Juan", "Perez", "12345678", "555-1234", 30],
              2: [2, "tarde", "Maria", "Gomez", "87654321", "555-5678", 40],
              3: [1, "mañana", "Carlos", "Lopez", "11223344", "555-8765", 25],
              4: [2, "tarde", "Ana", "Martinez", "44332211", "555-4321", 35]}
 
 
-# estructura tipo_trabajos = {(id_trabajo, turno): [puesto, sueldo_hora, area]}
+# Estructura tipo_trabajos = {(id_trabajo, turno): [puesto, sueldo_hora, area]}
 # Actualmente tenemos id 1: obrero, id 2: gerente
 tipo_trabajos = {(1, "mañana"): ["Obrero", 1000, "Produccion"],
                  (1, "tarde"): ["Obrero", 1200, "Produccion"],
                  (2, "mañana"): ["Gerente", 3000, "Administracion"],
                  (2, "tarde"): ["Gerente", 3000, "Administracion"]}
 
-# estructura liquidaciones = {id_liquidacion: [id_empleado, sueldo_bruto, horas_extra, deducciones, periodo, id_jornada, premios]}
+# Estructura liquidaciones = {id_liquidacion: [id_empleado, sueldo_bruto, horas_extra, deducciones, periodo]}
 liquidaciones = {}
 
-# estructura jornada = {(fecha, id_empleado): [horario_entrada, horario_salida]}
+# Estructura jornada = {(fecha, id_empleado): [horario_entrada, horario_salida]}
 jornada = {("10/10/2025", 1): [8, 17],
            ("11/10/2025", 2): [8, 18],
            ("12/10/2025", 3): [8, 16],
            ("13/10/2025", 4): [9, 17]}
 
-# Estructura montos_diarios = {id_empleado: {periodo: [[dia, monto], [dia, monto]]}}
-# el periodo tiene el formato MM/AAAA
-montos_diarios = {
-    
-}
+# Estructura montos_diarios = {id_empleado: {periodo: [[dia, monto, horas_trabajadas, horas_extra], [dia, monto, horas_trabajadas, horas_extra]]}}
+# El periodo tiene el formato MM/AAAA
+montos_diarios = {}
 
 contador_empleado = 5
+id_liquidacion = 1
 
-mensaje = "Que operacion quiere realizar: 1 = Agregar Empleado\n 2 = Eliminar empleado\n 3 = mostrar empleados \n 4 = modificar empleado \n 5 = Agregar jornada \n 6 = Mostrar jornadas \n 7 = Modificar horarios jornada \n 8 = Eliminar Jornada \n 9 = Agregar tipo trabajos \n 10 = Mostrar tipos de trabajos \n 11 = Modificar Tipo trabajo \n 12 = Eliminar tipo trabajo \n 13 = Calcular monto del dia \n 14 = Calcular liquidacion de empleado \n (#Agregar liquidacion y #Mostrar liquidaciones), 15 = salir: "
+mensaje = """Que operacion quiere realizar: 
+1 = Agregar Empleado
+2 = Eliminar empleado
+3 = mostrar empleados
+4 = modificar empleado
+5 = Agregar jornada
+6 = Mostrar jornadas
+7 = Modificar horarios jornada
+8 = Eliminar Jornada
+9 = Agregar tipo trabajos
+10 = Mostrar tipos de trabajos
+11 = Modificar Tipo trabajo
+12 = Eliminar tipo trabajo 
+13 = Calcular monto del dia
+14 = Calcular liquidacion de empleado (#Mostrar liquidaciones)
+15 = Mostrar liquidaciones
+16 = salir: """
+
 operacion = input(mensaje)
 
-while operacion not in ["1","2","3","4","5","6","7","8","9","10","11","12","13","14", "15"]:
+while operacion not in ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15", "16"]:
     print("Opcion incorrecta, seleccione una opcion valida!")
     operacion = input(mensaje)
     
-while operacion != "15":
+while operacion != "16":
     if operacion == "1":
         bandera = True
         while bandera:
@@ -58,7 +74,7 @@ while operacion != "15":
             
             while True:
                 turno = input("Ingrese el turno del empleado: ")
-                if turno in ["mañana","tarde"]:
+                if turno.lower() in ["mañana", "tarde"]:
                     break
                 print("el Turno debe ser mañana o tarde")
             
@@ -135,9 +151,12 @@ while operacion != "15":
                 empleados.pop(empleado_a_eliminar)
     
     elif operacion == "3":
-        for id, datos in empleados.items():
-            id_trabajo, turno, nombre, apellido, dni, telefono, edad = datos
-            print(f"ID: {id}, nombre: {nombre}, apellido: {apellido}, DNI: {dni}, telefono: {telefono}, ID trabajo: {id_trabajo}, edad: {edad}, turno: {turno}.")
+        if not empleados:
+            print("No hay empleados registrados")
+        else:
+            for id, datos in empleados.items():
+                id_trabajo, turno, nombre, apellido, dni, telefono, edad = datos
+                print(f"ID: {id}, nombre: {nombre}, apellido: {apellido}, DNI: {dni}, telefono: {telefono}, ID trabajo: {id_trabajo}, edad: {edad}, turno: {turno}.")
     
     elif operacion == "4":
         while True:
@@ -238,10 +257,13 @@ while operacion != "15":
         print("Jornada agregada correctamente")
     
     elif operacion == "6":
-        for id_jornada, datos_jornada in jornada.items():
-            fecha, id_empleado = id_jornada
-            horario_entrada, horario_salida = datos_jornada
-            print(f"Fecha: {fecha}, ID Empleado: {id_empleado}, Hora Entrada: {horario_entrada}, Hora Salida: {horario_salida}.")
+        if not jornada:
+            print("No hay jornadas registradas")
+        else:
+            for id_jornada, datos_jornada in jornada.items():
+                fecha, id_empleado = id_jornada
+                horario_entrada, horario_salida = datos_jornada
+                print(f"Fecha: {fecha}, ID Empleado: {id_empleado}, Hora Entrada: {horario_entrada}, Hora Salida: {horario_salida}.")
     
     elif operacion == "7":
         while True:
@@ -349,10 +371,13 @@ while operacion != "15":
         print("Tipo de trabajo agregado correctamente")
 
     elif operacion == "10":
-        for id_tipo_trabajo, datos_tipo_trabajo in tipo_trabajos.items():
-            id_puesto, turno = id_tipo_trabajo
-            puesto, sueldo_hora, area = datos_tipo_trabajo
-            print(f"ID Puesto: {id_puesto}, Turno: {turno}, Puesto: {puesto}, Sueldo por hora: {sueldo_hora}, Area: {area}.")
+        if not tipo_trabajos:
+            print("No hay tipos de trabajos registrados")
+        else:
+            for id_tipo_trabajo, datos_tipo_trabajo in tipo_trabajos.items():
+                id_puesto, turno = id_tipo_trabajo
+                puesto, sueldo_hora, area = datos_tipo_trabajo
+                print(f"ID Puesto: {id_puesto}, Turno: {turno}, Puesto: {puesto}, Sueldo por hora: {sueldo_hora}, Area: {area}.")
 
     elif operacion == "11":
         while True:
@@ -482,9 +507,9 @@ while operacion != "15":
         print(f"Monto del dia: ${monto_dia:.2f}")
         
         if montos_diarios[id_empleado_calcular][fecha_calcular[3:]]:
-            montos_diarios[id_empleado_calcular][fecha_calcular[3:]].append([[fecha_calcular, monto_dia]])
+            montos_diarios[id_empleado_calcular][fecha_calcular[3:]].append([[fecha_calcular, monto_dia, horas_trabajadas, horas_extra]])
         else:
-            montos_diarios[id_empleado_calcular][fecha_calcular[3:]] = [[fecha_calcular, monto_dia]]
+            montos_diarios[id_empleado_calcular][fecha_calcular[3:]] = [[fecha_calcular, monto_dia, horas_trabajadas, horas_extra]]
 
     elif operacion == "14":
         empleado_liquidar = input("Ingrese el ID del empleado a liquidar: ")
@@ -496,15 +521,24 @@ while operacion != "15":
         
         for monto in montos:
             total += monto[1]
-        
+        horas_extra = monto[2]
         jubilacion = total * 0.11
         total -= jubilacion
         pensiones = total * 0.03
         obra_social =total * 0.03
         bruto = total
         neto = total - jubilacion - pensiones - obra_social
-        print("Sueldo bruto: ", bruto, "\n Deduccion pension: ", pensiones, "\n Deducion obra social: ", obra_social ,  "\n Total: ", total)    
+        print("Sueldo bruto: ", bruto, "\n Deduccion pension: ", pensiones, "\n Deducion obra social: ", obra_social ,  "\n Total: ", total)
+
+        liquidaciones[id_liquidacion] = [empleado_liquidar, bruto, horas_extra, jubilacion + pensiones + obra_social, periodo_liquidar]
+        id_liquidacion += 1
         
-        
+    elif operacion == "15":
+        if not liquidaciones:
+            print("No hay liquidaciones registradas")
+        else:
+            for clave, datos in liquidaciones.items():
+                empleado, bruto, horas_extra, deducciones, periodo = datos
+                print(f"ID Liquidacion: {clave}, Empleado: {empleado}, Sueldo Bruto: {bruto}, Horas Extra: {horas_extra}, Deducciones: {deducciones}, Periodo: {periodo}.")
         
     operacion = input(mensaje)

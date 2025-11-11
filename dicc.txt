@@ -51,15 +51,13 @@ liquidaciones = {
 # Diccionario Jornadas
 # ================================
 jornada = {
-    id_jornada: [horario_entrada, horario_salida, periodo_mes, id_empleado]
+    id_jornada: [horario_entrada, horario_salida]
 }
 # clave:              identificador de la jornada,   INT
 # valor:              lista de información,          List<4>
 # lista de datos:
 # horario_entrada:    Hora de entrada,               STR (ej: "08:00")
 # horario_salida:     Hora de salida,                STR (ej: "17:00")
-# periodo_mes:        Mes/año trabajado,             STR (ej: "2025-09")
-# id_empleado:        Identificador del empleado,    INT
 
 
 # ================================
@@ -77,3 +75,23 @@ sueldos = {
 
 un empleado tiene varias jornadas en un mes, un empleado tiene un tipo de trabajo, las liquidaciones se hacen mensualmente,
 las liquidaciones se hacen para un solo empleado en un mes especifico, un tipo de trabajo puede tener un area establecida, 
+
+# ================================
+# Diccionario Montos_diarios
+# ================================
+
+montos_diarios = {
+    id_empleado: 
+        {periodo: 
+            [
+                [dia, monto, horas_trabajadas, horas_extra], 
+                [dia, monto, horas_trabajadas, horas_extra]
+            ]
+        }
+    }
+# Clave:        identificador del empleado,       INT
+# Valor:        diccionario de periodos,          List<3>
+# Lista de datos:
+# Periodo:      Mes y año                         STR
+# Dia:          Dia del periodo                   STR
+# Monto:        Total diario                      FLOAT
