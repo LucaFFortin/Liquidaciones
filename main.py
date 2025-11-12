@@ -6,40 +6,58 @@ def calcular_horas_trabajadas(hora_entrada, hora_salida):
 # ejemplo de la funcion, ponele que entro alas 18 y salio alas 00, ni apalo laburo 18 horas, entonces la funcion reconoce que es mayor y a 24 le resta 18, dando 6, las 6 horas que laburo
 
 # TODO: añadir error handler y sentencias TRY EXCEPT FINALLY
-# TODO: anañir funciones para modificar el diccionario tipo_trabajos
-# estructura empleados = {id_empleado: [id_trabajo, turno, nombre, apellido, dni, telefono, edad]}
+
+# Estructura empleados = {id_empleado: [id_trabajo, turno, nombre, apellido, dni, telefono, edad]}
 empleados = {1: [1, "mañana", "Juan", "Perez", "12345678", "555-1234", 30],
              2: [2, "tarde", "Maria", "Gomez", "87654321", "555-5678", 40],
              3: [1, "mañana", "Carlos", "Lopez", "11223344", "555-8765", 25],
              4: [2, "tarde", "Ana", "Martinez", "44332211", "555-4321", 35]}
 
 
-# estructura tipo_trabajos = {(id_trabajo, turno): [puesto, sueldo_hora, area]}
+# Estructura tipo_trabajos = {(id_trabajo, turno): [puesto, sueldo_hora, area]}
 # Actualmente tenemos id 1: obrero, id 2: gerente
 tipo_trabajos = {(1, "mañana"): ["Obrero", 1000, "Produccion"],
                  (1, "tarde"): ["Obrero", 1200, "Produccion"],
                  (2, "mañana"): ["Gerente", 3000, "Administracion"],
                  (2, "tarde"): ["Gerente", 3000, "Administracion"]}
 
-# estructura liquidaciones = {id_liquidacion: [id_empleado, sueldo_bruto, horas_extra, deducciones, periodo, id_jornada, premios]}
+# Estructura liquidaciones = {id_liquidacion: [id_empleado, sueldo_bruto, horas_extra, deducciones, periodo]}
 liquidaciones = {}
 
-# estructura jornada = {(fecha, id_empleado): [horario_entrada, horario_salida]}
-jornada = {("10/10/2025", 1): [8, 17],
-           ("11/10/2025", 2): [8, 18],
-           ("12/10/2025", 3): [8, 16],
-           ("13/10/2025", 4): [9, 17]}
+# Estructura jornada = {(fecha, id_empleado): [horario_entrada, horario_salida]}
+jornada = {
+    ("10/10/2025", 1): [8, 17],
+    ("11/10/2025", 2): [8, 18],
+    ("12/10/2025", 3): [8, 16],
+    ("13/10/2025", 4): [9, 17]
+}
+
+# Estructura montos_diarios = {id_empleado: {periodo: [[fecha, monto, horas_trabajadas, horas_extra], [fecha, monto, horas_trabajadas, horas_extra]]}}
+# El periodo tiene el formato MM/AAAA
+montos_diarios = {
+    1: {"10/2025": [["10/10/2025", 9500, 9, 1]]}
+}
 
 contador_empleado = 5
+id_liquidacion = 1
 
-mensaje = "Que operacion quiere realizar: 1 = Agregar Empleado, 2 = Eliminar empleado, 3 = mostrar empleados, 4 = modificar empleado, 5 = Agregar jornada, 6 = Mostrar jornadas, 7 = Modificar horarios jornada, 8 = Eliminar Jornada, 9 = Agregar tipo trabajos, 10 = Mostrar tipos de trabajos, 11 = Modificar Tipo trabajo, 12 = Eliminar tipo trabajo, 13 = calcular monto del dia, 14 = salir: "
+mensaje = """Que operacion quiere realizar: 
+Empleado:           1 = Agregar Empleado, 2 = Eliminar empleado, 3 = mostrar empleados, 4 = modificar empleado.
+Jornadas:           5 = Agregar jornada, 6 = Mostrar jornadas, 7 = Modificar horarios jornada, 8 = Eliminar Jornada.
+Cargos laborales:   9 = Agregar tipo trabajos, 10 = Mostrar tipos de trabajos, 11 = Modificar Tipo trabajo, 12 = Eliminar tipo trabajo.
+Montos diarios:     13 = Calcular monto, 14 = Mostrar montos, 15 = Actualizar monto, 16 = Eliminar monto.
+Liquidaciones:      17 = Calcular liquidacion de empleado, 18 = Mostrar liquidaciones, 19 = eliminar liquidación.
+Para salir de la aplicacion = Ingrese "20".
+------------------------------
+Ingrese la operacion a realizar: """
+
 operacion = input(mensaje)
 
-while operacion not in ["1","2","3","4","5","6","7","8","9","10","11","12","13","14"]:
+while operacion not in ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"]:
     print("Opcion incorrecta, seleccione una opcion valida!")
     operacion = input(mensaje)
     
-while operacion != "14":
+while operacion != "20":
     if operacion == "1":
         bandera = True
         while bandera:
@@ -52,7 +70,7 @@ while operacion != "14":
             
             while True:
                 turno = input("Ingrese el turno del empleado: ")
-                if turno in ["mañana","tarde"]:
+                if turno.lower() in ["mañana", "tarde"]:
                     break
                 print("el Turno debe ser mañana o tarde")
             
@@ -129,9 +147,12 @@ while operacion != "14":
                 empleados.pop(empleado_a_eliminar)
     
     elif operacion == "3":
-        for id, datos in empleados.items():
-            id_trabajo, turno, nombre, apellido, dni, telefono, edad = datos
-            print(f"ID: {id}, nombre: {nombre}, apellido: {apellido}, DNI: {dni}, telefono: {telefono}, ID trabajo: {id_trabajo}, edad: {edad}, turno: {turno}.")
+        if not empleados:
+            print("No hay empleados registrados")
+        else:
+            for id, datos in empleados.items():
+                id_trabajo, turno, nombre, apellido, dni, telefono, edad = datos
+                print(f"ID: {id}, nombre: {nombre}, apellido: {apellido}, DNI: {dni}, telefono: {telefono}, ID trabajo: {id_trabajo}, edad: {edad}, turno: {turno}.")
     
     elif operacion == "4":
         while True:
@@ -232,10 +253,13 @@ while operacion != "14":
         print("Jornada agregada correctamente")
     
     elif operacion == "6":
-        for id_jornada, datos_jornada in jornada.items():
-            fecha, id_empleado = id_jornada
-            horario_entrada, horario_salida = datos_jornada
-            print(f"Fecha: {fecha}, ID Empleado: {id_empleado}, Hora Entrada: {horario_entrada}, Hora Salida: {horario_salida}.")
+        if not jornada:
+            print("No hay jornadas registradas")
+        else:
+            for id_jornada, datos_jornada in jornada.items():
+                fecha, id_empleado = id_jornada
+                horario_entrada, horario_salida = datos_jornada
+                print(f"Fecha: {fecha}, ID Empleado: {id_empleado}, Hora Entrada: {horario_entrada}, Hora Salida: {horario_salida}.")
     
     elif operacion == "7":
         while True:
@@ -343,10 +367,13 @@ while operacion != "14":
         print("Tipo de trabajo agregado correctamente")
 
     elif operacion == "10":
-        for id_tipo_trabajo, datos_tipo_trabajo in tipo_trabajos.items():
-            id_puesto, turno = id_tipo_trabajo
-            puesto, sueldo_hora, area = datos_tipo_trabajo
-            print(f"ID Puesto: {id_puesto}, Turno: {turno}, Puesto: {puesto}, Sueldo por hora: {sueldo_hora}, Area: {area}.")
+        if not tipo_trabajos:
+            print("No hay tipos de trabajos registrados")
+        else:
+            for id_tipo_trabajo, datos_tipo_trabajo in tipo_trabajos.items():
+                id_puesto, turno = id_tipo_trabajo
+                puesto, sueldo_hora, area = datos_tipo_trabajo
+                print(f"ID Puesto: {id_puesto}, Turno: {turno}, Puesto: {puesto}, Sueldo por hora: {sueldo_hora}, Area: {area}.")
 
     elif operacion == "11":
         while True:
@@ -430,7 +457,7 @@ while operacion != "14":
             if id_input.isdigit():
                 id_empleado_calcular = int(id_input)
                 break
-            print("ID debe ser numero")
+            print("ID debe ser numerico")
 
         if id_empleado_calcular not in empleados:
             print("El empleado no existe")
@@ -474,5 +501,121 @@ while operacion != "14":
         print(f"Horas trabajadas: {horas_trabajadas} (Normales: {horas_normales}, Extra: {horas_extra})")
         print(f"Sueldo por hora: ${sueldo_hora}")
         print(f"Monto del dia: ${monto_dia:.2f}")
+        
+        # Guardar el monto diario en la estructura montos_diarios
+        # montos_diarios tiene la forma: {id_empleado: {periodo: [[dia, monto, horas_trabajadas, horas_extra], ...]}}
+        periodo = fecha_calcular[3:]
+        # Asegurarse que exista la entrada del empleado
+        if id_empleado_calcular not in montos_diarios:
+            montos_diarios[id_empleado_calcular] = {}
+        # Asegurarse que exista el periodo dentro del empleado
+        if periodo not in montos_diarios[id_empleado_calcular]:
+            montos_diarios[id_empleado_calcular][periodo] = []
+        # Añadir el registro del día (no anidar doblemente la lista)
+
+        for monto in montos_diarios[id_empleado_calcular][periodo]:
+            if monto[0] == fecha_calcular:
+                print("Ya existe un monto registrado para ese dia y empleado")
+                break
+            else:
+                montos_diarios[id_empleado_calcular][periodo].append([fecha_calcular, monto_dia, horas_trabajadas, horas_extra])       
+
+    elif operacion == "14":
+        if not montos_diarios:
+            print("No hay montos diarios registrados")
+        else:
+            for id_empleado, datos_monto in montos_diarios.items():
+                nombre, apellido = empleados[id_empleado][2], empleados[id_empleado][3]
+                print(f"Empleado: {nombre} {apellido}")
+                for periodo, datos_periodo in datos_monto.items():
+                    print(f"Periodo: {periodo}")
+                    for datos in datos_periodo:
+                        dia, monto, horas_trabajadas, horas_extra = datos
+                        print(f"Dia: {dia}, monto: {monto}, horas trabajadas: {horas_trabajadas}, horas extra: {horas_extra}")
+
+    elif operacion == "15":
+        empleado_actualizar = int(input("Ingrese el ID del empleado a actualizar el monto: "))
+        periodo_actualizar = input("Ingrese el periodo a actualizar (MM/YYYY): ")
+        fecha_actualizar = input("Ingrese la fecha a actualizar (DD/MM/YYYY): ")
+        
+        montos = montos_diarios[empleado_actualizar][periodo_actualizar]
+        
+        for i in range(len(montos)):
+            if montos[i][0] == fecha_actualizar:
+                nuevo_monto_input = input("Ingrese el nuevo monto: ")
+                if nuevo_monto_input.replace('.','',1).isdigit():
+                    nuevo_monto = float(nuevo_monto_input)
+                    montos[i][1] = nuevo_monto
+                    print("Monto actualizado correctamente")
+                else:
+                    print("El monto debe ser un numero")
+                break
+        else:
+            print("No se encontro la fecha especificada")
+
+    elif operacion == "16":
+        empleado_eliminar = int(input("Ingrese el ID del empleado a eliminar el monto: "))
+        periodo_eliminar = input("Ingrese el periodo a eliminar (MM/YYYY): ")
+        fecha_eliminar = input("Ingrese la fecha a eliminar (DD/MM/YYYY): ")
+        
+        montos = montos_diarios[empleado_eliminar][periodo_eliminar]
+        
+        for i in range(len(montos)):
+            if montos[i][0] == fecha_eliminar:
+                montos.pop(i)
+                print("Monto eliminado correctamente")
+                break
+        else:
+            print("No se encontro la fecha especificada")
+
+    elif operacion == "17":
+        empleado_liquidar = input("Ingrese el ID del empleado a liquidar: ")
+        periodo_liquidar = input("Ingrese el periodo a liquidar (MM/YYYY): ")
+        
+        montos = montos_diarios[empleado_liquidar][periodo_liquidar]
+        
+        total = 0
+        
+        for monto in montos:
+            total += monto[1]
+        horas_extra = monto[2]
+        jubilacion = total * 0.11
+        total -= jubilacion
+        pensiones = total * 0.03
+        obra_social =total * 0.03
+        bruto = total
+        neto = total - jubilacion - pensiones - obra_social
+        print("Sueldo bruto: ", bruto, "\n Deduccion pension: ", pensiones, "\n Deducion obra social: ", obra_social ,  "\n Total: ", total)
+
+        liquidaciones[id_liquidacion] = [empleado_liquidar, bruto, horas_extra, jubilacion + pensiones + obra_social, periodo_liquidar]
+        id_liquidacion += 1
+        
+    elif operacion == "18":
+        if not liquidaciones:
+            print("No hay liquidaciones registradas")
+        else:
+            for clave, datos in liquidaciones.items():
+                empleado, bruto, horas_extra, deducciones, periodo = datos
+                print(f"ID Liquidacion: {clave}, Empleado: {empleado}, Sueldo Bruto: {bruto}, Horas Extra: {horas_extra}, Deducciones: {deducciones}, Periodo: {periodo}.")
+    
+    elif operacion == "19":
+        while True:
+            id_input = input("Ingrese el ID de la liquidacion que quiere eliminar: ")
+            if id_input.isdigit():
+                id_liquidacion_eliminar = int(id_input)
+                break
+            print("El ID debe ser un numero")
+        
+        if id_liquidacion_eliminar not in liquidaciones:
+            print("La liquidacion no existe")
+        else:
+            while True:
+                confirmacion = input(f"Esta seguro de eliminar la liquidacion con ID {id_liquidacion_eliminar}, 1 = Si, 2 = No: ")
+                if confirmacion in ["1","2"]:
+                    break
+                print("La opcion debe ser 1 o 2")
+            if confirmacion == "1":
+                liquidaciones.pop(id_liquidacion_eliminar)
+                print("Liquidacion eliminada correctamente")
 
     operacion = input(mensaje)
