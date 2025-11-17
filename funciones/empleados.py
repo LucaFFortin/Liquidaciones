@@ -1,5 +1,3 @@
-from estructuras import empleados
-
 def obtener_dni_empleados():
     lista_dni = []
 
@@ -95,8 +93,6 @@ def agregar_empleado():
             print("La edad debe ser un numero entre 18 y 65")
 
         archivo.write(f"{contador_empleado},{id_trabajo},{turno},{nombre},{apellido},{dni},{telefono},{edad}\n")
-        empleados[contador_empleado] = [id_trabajo, turno, nombre, apellido, dni, telefono, edad]
-        contador_empleado += 1
         
         while True:
             continuar = input("Desea ingresar otro empleado: 1 = Si, 2 = No: ")

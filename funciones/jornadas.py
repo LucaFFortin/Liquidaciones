@@ -1,5 +1,3 @@
-from estructuras import empleados, jornadas
-
 def agregar_jornada():
     while True:
         fecha = input("Ingrese la fecha de la jornada (DD/MM/AAAA): ")
@@ -14,7 +12,26 @@ def agregar_jornada():
             break
         print("La ID debe ser numero")
     
-    if id_empleado not in empleados:
+    id_existe = False
+    with open("estructuras/empleados.txt", "r+", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
+        
+        for linea in lineas:
+            empleado = linea.split(',')
+            
+            id = empleado[0]
+            
+            if id != id_empleado:
+                continue
+            
+            id_existe = True
+
+    
+    if not id_existe:
         print("El empleado no existe")
         return
     
@@ -31,17 +48,23 @@ def agregar_jornada():
             horario_salida = int(salida_input)
             break
         print("La hora debe ser entre 00 y 23")
-    
-    jornadas[(fecha, id_empleado)] = [horario_entrada, horario_salida]
+
+    with open("estructuras/jornadas.txt", "a", encoding="utf-8") as archivo:
+        archivo.write(f"{fecha},{id_empleado},{horario_entrada},{horario_salida}\n")
     print("Jornada agregada correctamente")
 
 def mostrar_jornadas():
-    if not jornadas:
-        print("No hay jornadas registradas")
-    else:
-        for id_jornada, datos_jornada in jornadas.items():
-            fecha, id_empleado = id_jornada
-            horario_entrada, horario_salida = datos_jornada
+    with open("estructuras/jornadas.txt", "r", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
+
+        for linea in lineas:
+            empleado = linea.split(",")
+
+            fecha, id_empleado, horario_entrada, horario_salida = empleado
             print(f"Fecha: {fecha}, ID Empleado: {id_empleado}, Hora Entrada: {horario_entrada}, Hora Salida: {horario_salida}.")
 
 def modificar_jornada():
@@ -58,28 +81,58 @@ def modificar_jornada():
             break
         print("La ID debe ser numero")
 
-    if (fecha_modificar, id_empleado_modificar) not in jornadas:
-        print("Jornada no encontrada")
-        return
+    with open("estructuras/jornadas.txt", "r+", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
 
-    datos_jornada = jornadas[(fecha_modificar, id_empleado_modificar)]
-    etiquetas = ["Horario de entrada", "Horario de Salida"]
-    
-    for i in range(len(datos_jornada)):
-        while True:
-            modificar = input(f"Desea modificar {etiquetas[i]}? 1 = Si, 2 = No: ")
-            if modificar in ["1","2"]:
-                break
-            print("La opcion debe ser 1 o 2")
-        if modificar != "1":
-            continue
-        
-        while True:
-            nuevo_valor = input(f"Ingrese el nuevo valor de {etiquetas[i]}: ")
-            if nuevo_valor.isdigit() and 00 <= int(nuevo_valor) <= 23:
-                datos_jornada[i] = int(nuevo_valor)
-                break
-            print("La hora debe ser entre 00 y 23")
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
+
+        # para validar que exista la jornada
+        jornada_existe = False
+
+        for idx, linea in enumerate(lineas):
+            empleado = linea.split(",")
+
+            fecha, id_empleado, horario_entrada, horario_salida = empleado
+
+            if id_empleado != id_empleado_modificar or fecha != fecha_modificar:
+                continue
+            
+            jornada_existe = True
+            etiquetas = ["Horario de entrada", "Horario de Salida"]
+            
+            datos_jornada = [horario_entrada, horario_salida[:-1]]
+            
+            for i in range(0, len(datos_jornada)):
+                while True:
+                    modificar = input(f"Desea modificar {etiquetas[i]}? 1 = Si, 2 = No: ")
+                    if modificar in ["1","2"]:
+                        break
+                    print("La opcion debe ser 1 o 2")
+                if modificar != "1":
+                    continue
+                
+                while True:
+                    nuevo_valor = input(f"Ingrese el nuevo valor de {etiquetas[i]}: ")
+                    if nuevo_valor.isdigit() and 00 <= int(nuevo_valor) <= 23:
+                        datos_jornada[i] = int(nuevo_valor)
+                        break
+                    print("La hora debe ser entre 00 y 23")
+            
+            nueva_linea = f"{fecha},{id_empleado},{datos_jornada[0]},{datos_jornada[1]}"
+
+            lineas[idx] = nueva_linea
+
+            break
+
+        if not jornada_existe:
+            print("Jornada no encontrada.")
+            return
+
+        archivo.seek(0)
+        archivo.truncate(0)
+        archivo.write(lineas)
 
 def eliminar_jornada():
     while True:
@@ -94,6 +147,47 @@ def eliminar_jornada():
             id_empleado_eliminar = int(id_input)
             break
         print("La ID debe ser numero")
+    
+    with open("estructuras/jornadas.txt", "r+", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
+
+        # para validar que exista la jornada
+        jornada_existe = False
+
+        for idx, linea in enumerate(lineas):
+            empleado = linea.split(",")
+
+            fecha, id_empleado, horario_entrada, horario_salida = empleado
+
+            if id_empleado != id_empleado_eliminar or fecha != fecha_eliminar:
+                continue
+            
+            jornada_existe = True
+            
+            while True:
+                confirmacion = input(f"Esta seguro de eliminar la jornada del empleado con ID {id_empleado_eliminar} en la fecha {fecha_eliminar}, 1 = Si, 2 = No: ")
+                if confirmacion in ["1","2"]:
+                    break
+                print("La opcion debe ser 1 o 2")
+            
+            if confirmacion == "1":
+                lineas.pop(idx)
+                print("Jornada eliminada correctamente")
+                break
+
+
+        if not jornada_existe:
+            print("Jornada no encontrada.")
+            return
+
+        archivo.seek(0)
+        archivo.truncate(0)
+        archivo.write(lineas)
+
 
     if (fecha_eliminar, id_empleado_eliminar) not in jornadas:
         print("La jornada no existe")
