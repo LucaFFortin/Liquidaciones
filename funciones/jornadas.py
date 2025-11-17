@@ -187,16 +187,3 @@ def eliminar_jornada():
         archivo.seek(0)
         archivo.truncate(0)
         archivo.write(lineas)
-
-
-    if (fecha_eliminar, id_empleado_eliminar) not in jornadas:
-        print("La jornada no existe")
-    else:
-        while True:
-            confirmacion = input(f"Esta seguro de eliminar la jornada del empleado con ID {id_empleado_eliminar} en la fecha {fecha_eliminar}, 1 = Si, 2 = No: ")
-            if confirmacion in ["1","2"]:
-                break
-            print("La opcion debe ser 1 o 2")
-        if confirmacion == "1":
-            jornadas.pop((fecha_eliminar, id_empleado_eliminar))
-            print("Jornada eliminada correctamente")
