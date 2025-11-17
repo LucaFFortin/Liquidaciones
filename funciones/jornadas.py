@@ -21,15 +21,14 @@ def agregar_jornada():
             return
         
         for linea in lineas:
-            empleado = linea.split(',')
+            jornada = linea.split(',')
             
-            id = empleado[0]
+            id = jornada[0]
             
             if id != id_empleado:
                 continue
             
             id_existe = True
-
     
     if not id_existe:
         print("El empleado no existe")
@@ -159,9 +158,9 @@ def eliminar_jornada():
         jornada_existe = False
 
         for idx, linea in enumerate(lineas):
-            empleado = linea.split(",")
+            jornada = linea.split(",")
 
-            fecha, id_empleado, horario_entrada, horario_salida = empleado
+            fecha, id_empleado, horario_entrada, horario_salida = jornada
 
             if id_empleado != id_empleado_eliminar or fecha != fecha_eliminar:
                 continue

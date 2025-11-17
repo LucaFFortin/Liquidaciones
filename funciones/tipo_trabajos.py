@@ -1,5 +1,3 @@
-from estructuras import tipo_trabajos
-
 def agregar_tipo_trabajo():
     while True:
         id_input = input("Ingrese el ID del puesto: ")
@@ -14,7 +12,24 @@ def agregar_tipo_trabajo():
             break
         print("Turno debe ser manana o tarde")
     
-    if (id_trabajo, turno_trabajo) in tipo_trabajos:
+    tipo_trabajo_existe = False
+
+    with open("estructuras/tipo_trabajos.txt", "r", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
+
+        for linea in lineas:
+            tipo_trabajo = linea.split(",")
+
+            id_trabajo, turno, puesto, sueldo_hora, area = tipo_trabajo
+
+            if id_trabajo == id_trabajo and turno == turno_trabajo:
+                tipo_trabajo_existe = True
+
+    if tipo_trabajo_existe:
         print("Ya hay un puesto con esa ID y turno")
         return
 
@@ -37,23 +52,31 @@ def agregar_tipo_trabajo():
             break
         print("Area no puede estar vacia")
 
-    tipo_trabajos[(id_trabajo, turno_trabajo)] = [puesto, sueldo_hora, area]
+    with open("estructuras/jornadas.txt", "a", encoding="utf-8") as archivo:
+        archivo.write(f"{id_trabajo},{turno_trabajo},{puesto},{sueldo_hora},{area}\n")
     print("Tipo de trabajo agregado correctamente")
 
 def mostrar_tipos_trabajos():
-    if not tipo_trabajos:
-        print("No hay tipos de trabajos registrados")
-    else:
-        for id_tipo_trabajo, datos_tipo_trabajo in tipo_trabajos.items():
-            id_puesto, turno = id_tipo_trabajo
-            puesto, sueldo_hora, area = datos_tipo_trabajo
-            print(f"ID Puesto: {id_puesto}, Turno: {turno}, Puesto: {puesto}, Sueldo por hora: {sueldo_hora}, Area: {area}.")
+
+    with open("estructuras/tipo_trabajos.txt", "r", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
+
+        for linea in lineas:
+            tipo_trabajo = linea.split(",")
+
+            id_trabajo, turno, puesto, sueldo_hora, area = tipo_trabajo
+            print(f"ID Puesto: {id_trabajo}, Turno: {turno}, Puesto: {puesto}, Sueldo por hora: {sueldo_hora}, Area: {area}.")
 
 def modificar_tipo_trabajo():
+
     while True:
         id_input = input("Ingrese el ID del puesto que quiere modificar: ")
         if id_input.isdigit():
-            id_puesto_modificar = int(id_input)
+            id_trabajo_modificar = int(id_input)
             break
         print("ID debe ser numero")
     
@@ -63,40 +86,88 @@ def modificar_tipo_trabajo():
             break
         print("Turno debe ser manana o tarde")
 
-    if (id_puesto_modificar, turno_modificar) not in tipo_trabajos:
-        print("Tipo de trabajo no existe")
+    tipo_trabajo_existe = False
+    
+    with open("estructuras/tipo_trabajos.txt", "r", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
+
+        for linea in lineas:
+            tipo_trabajo = linea.split(",")
+
+            id_trabajo, turno = tipo_trabajo[0], tipo_trabajo[1]
+
+            if id_trabajo == id_trabajo_modificar and turno == turno_modificar:
+                tipo_trabajo_existe = True
+
+    if not tipo_trabajo_existe:
+        print("El tipo de trabajo no existe.")
         return
 
-    datos_tipo_trabajo = tipo_trabajos[(id_puesto_modificar, turno_modificar)]
-    etiquetas = ["puesto", "sueldo_hora", "area"]
+    with open("estructuras/jornadas.txt", "r+", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
 
-    for i in range(len(datos_tipo_trabajo)):
-        while True:
-            modificar = input(f"Desea modificar {etiquetas[i]}? 1 = Si, 2 = No: ")
-            if modificar in ["1","2"]:
-                break
-            print("Opcion debe ser 1 o 2")
-        if modificar != "1":
-            continue
-        
-        while True:
-            nuevo_valor = input(f"Ingrese el nuevo valor de {etiquetas[i]}: ")
-            if etiquetas[i] == "sueldo_hora":
-                if nuevo_valor.isdigit() and int(nuevo_valor) > 0:
-                    datos_tipo_trabajo[i] = int(nuevo_valor)
-                    break
-                print("Sueldo debe ser numero positivo")
-            else:
-                if nuevo_valor.strip():
-                    datos_tipo_trabajo[i] = nuevo_valor
-                    break
-                print("El campo no puede estar vacio")
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
 
+        tipo_trabajo_encontrada = False
+
+        for idx, linea in enumerate(lineas):
+            tipo_trabajo = linea.split(",")
+
+            id_trabajo, turno, puesto, sueldo_hora, area = tipo_trabajo
+            
+            if id_trabajo != id_trabajo_modificar:
+                continue
+            
+            datos_tipo_trabajo = [turno, puesto, sueldo_hora, area]
+            etiquetas = ["turno", "puesto", "sueldo hora", "area"]
+
+            for i in range(len(datos_tipo_trabajo)):
+                while True:
+                    modificar = input(f"Desea modificar {etiquetas[i]}? 1 = Si, 2 = No: ")
+                    if modificar in ["1","2"]:
+                        break
+                    print("Opcion debe ser 1 o 2")
+                if modificar != "1":
+                    continue
+                
+                while True:
+                    nuevo_valor = input(f"Ingrese el nuevo valor de {etiquetas[i]}: ")
+                    if etiquetas[i] == "sueldo_hora":
+                        if nuevo_valor.isdigit() and int(nuevo_valor) > 0:
+                            datos_tipo_trabajo[i] = int(nuevo_valor)
+                            break
+                        print("Sueldo debe ser numero positivo")
+                    else:
+                        if nuevo_valor.strip():
+                            datos_tipo_trabajo[i] = nuevo_valor
+                            break
+                        print("El campo no puede estar vacio")
+
+            nueva_linea = f"{id_trabajo},{datos_tipo_trabajo[0]},{datos_tipo_trabajo[1]},{datos_tipo_trabajo[2]},{datos_tipo_trabajo[3]}"
+
+            lineas[idx] = nueva_linea
+
+            break
+
+        if not tipo_trabajo_encontrada:
+            print("Tipo trabajo  no encontrada.")
+            return
+
+        archivo.seek(0)
+        archivo.truncate(0)
+        archivo.write(lineas)
+    
 def eliminar_tipo_trabajo():
     while True:
         id_input = input("Ingrese el ID del puesto que quiere eliminar: ")
         if id_input.isdigit():
-            id_puesto_eliminar = int(id_input)
+            id_trabajo_eliminar = int(id_input)
             break
         print("ID debe ser numero")
     
@@ -105,15 +176,40 @@ def eliminar_tipo_trabajo():
         if turno_eliminar in ["manana","tarde"]:
             break
         print("Turno debe ser manana o tarde")
+    
+    with open("estructuras/jornadas.txt", "r+", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
 
-    if (id_puesto_eliminar, turno_eliminar) not in tipo_trabajos:
-        print("El tipo de trabajo no existe")
-    else:
-        while True:
-            confirmacion = input(f"Esta seguro de eliminar el tipo de trabajo con ID {id_puesto_eliminar} y turno {turno_eliminar}, 1 = Si, 2 = No: ")
-            if confirmacion in ["1","2"]:
-                break
-            print("Opcion debe ser 1 o 2")
-        if confirmacion == "1":
-            tipo_trabajos.pop((id_puesto_eliminar, turno_eliminar))
-            print("Tipo de trabajo eliminado correctamente")
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
+
+        tipo_trabajo_encontrada = False
+
+        for idx, linea in enumerate(lineas):
+            tipo_trabajo = linea.split(",")
+
+            id_trabajo, turno, puesto, sueldo_hora, area = tipo_trabajo
+            
+            if id_trabajo != id_trabajo_eliminar or turno != turno_eliminar:
+                continue
+        
+            tipo_trabajo_encontrada = True
+                
+            while True:
+                confirmacion = input(f"Esta seguro de eliminar el tipo de trabajo con ID {id_trabajo_eliminar} y turno {turno_eliminar}, 1 = Si, 2 = No: ")
+                if confirmacion in ["1","2"]:
+                    break
+                print("Opcion debe ser 1 o 2")
+            if confirmacion == "1":
+                lineas.pop(idx)
+                print("Tipo de trabajo eliminado correctamente")
+
+        if not tipo_trabajo_encontrada:
+            print("Jornada no encontrada.")
+            return
+
+        archivo.seek(0)
+        archivo.truncate(0)
+        archivo.write(lineas)
+
