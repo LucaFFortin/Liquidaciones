@@ -248,3 +248,6 @@ def modificar_empleado():
                             empleado[i] = nuevo_valor
                             break
                         print("El campo no puede estar vacio")
+            
+            archivo.truncate(0)
+            archivo.writelines(lineas)
