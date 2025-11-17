@@ -1,9 +1,42 @@
 from estructuras import empleados
 
-contador_empleado = 21
+def obtener_dni_empleados():
+    lista_dni = []
+
+    with open("estructuras/empleados.txt", "r", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
+        
+        for linea in lineas:
+            empleado = linea.split(',')
+
+            lista_dni.append(empleado[4])
+    
+    return lista_dni    
+
+def obtener_ultimo_id(): 
+    with open("estructuras/empleados.txt", "r", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+
+        if not lineas:
+            return
+        
+        ultima_linea = lineas[-1]
+        
+        if not ultima_linea:
+            return
+        
+        ultimo_id = ultima_linea.split(',')[0]
+
+        return int(ultimo_id)
 
 def agregar_empleado():
-    global contador_empleado
+    archivo = open("estructuras/empleados.txt", "a+", encoding="utf-8")
+    contador_empleado = obtener_ultimo_id() + 1
+
     bandera = True
     while bandera:
         while True:
@@ -21,24 +54,26 @@ def agregar_empleado():
         
         while True:
             nombre = input("Ingrese el nombre del empleado: ")
-            if nombre.strip():
+            if nombre.strip().capitalize():
                 break
             print("El nombre no puede estar vacio")
         
         while True:
             apellido = input("Ingrese el apellido del empleado: ")
-            if apellido.strip():
+            if apellido.strip().capitalize():
                 break
             print("El apellido no puede estar vacio")
         
         while True:
             dni = input("Ingrese el DNI del empleado: ")
             if dni.isdigit() and len(dni) == 8:
+                lista_dni = obtener_dni_empleados()
                 dni_existe = False
-                for empleado_id, datos_empleado in empleados.items():
-                    if datos_empleado[4] == dni: 
+                for dni_existente in lista_dni:
+                    if dni_existente == dni:
                         dni_existe = True
                         break
+
                 if dni_existe:
                     print("Ya existe un empleado con ese DNI")
                 else:
@@ -59,6 +94,7 @@ def agregar_empleado():
                 break
             print("La edad debe ser un numero entre 18 y 65")
 
+        archivo.write(f"{contador_empleado},{id_trabajo},{turno},{nombre},{apellido},{dni},{telefono},{edad}\n")
         empleados[contador_empleado] = [id_trabajo, turno, nombre, apellido, dni, telefono, edad]
         contador_empleado += 1
         
@@ -69,6 +105,7 @@ def agregar_empleado():
             print("Opcion debe ser 1 o 2")
         if continuar == "2":
             bandera = False
+            archivo.close()
 
 def eliminar_empleado():
     while True:
@@ -78,24 +115,56 @@ def eliminar_empleado():
             break
         print("El ID debe ser un numero")
     
-    if empleado_a_eliminar not in empleados:
-        print("El ID no existe")
-    else:
-        while True:
-            confirmacion = input(f"Esta seguro de eliminar el empleado {empleados[empleado_a_eliminar]}, 1 = Si, 2 = No: ")
-            if confirmacion in ["1","2"]:
-                break
-            print("La opcion debe ser 1 o 2")
-        if confirmacion == "1":
-            empleados.pop(empleado_a_eliminar)
+    with open("estructuras/empleados.txt", "r+", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+        archivo.seek(0)
+            
+        if empleado_a_eliminar not in range(1, obtener_ultimo_id() + 1):
+            print("Id fuera de rango.")
+            return
+
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
+        
+        id_existe = False
+
+        for linea in lineas:
+            empleado = linea.split(',')
+
+            id, nombre, apellido = empleado[0], empleado[3], empleado[4]
+
+            if int(id) == empleado_a_eliminar:  
+                id_existe = True
+                while True:
+                    confirmacion = input(f"Esta seguro de eliminar el empleado {nombre} {apellido}, 1 = Si, 2 = No: ")
+                    if confirmacion in ["1","2"]:
+                        break
+                    print("La opcion debe ser 1 o 2")
+                if confirmacion == "1":
+                    lineas.pop(empleado_a_eliminar - 1)            
+
+                    archivo.truncate(0)
+                    archivo.writelines(lineas)
+        
+        if not id_existe:
+            print("El id dado no existe.")
 
 def mostrar_empleados():
-    if not empleados:
-        print("No hay empleados registrados")
+    archivo = open("estructuras/empleados.txt", "r", -1, "utf-8")
+     
+    lineas = archivo.readlines()
+    
+    if not lineas:
+        print("El archivo esta vacio.")
     else:
-        for id, datos in empleados.items():
-            id_trabajo, turno, nombre, apellido, dni, telefono, edad = datos
-            print(f"ID: {id}, nombre: {nombre}, apellido: {apellido}, DNI: {dni}, telefono: {telefono}, ID trabajo: {id_trabajo}, edad: {edad}, turno: {turno}.")
+        for linea in lineas:
+            datos = linea.split(',')
+            id, id_trabajo, turno, nombre, apellido, dni, telefono, edad = datos 
+            
+            print(f"ID: {id}, nombre: {nombre}, apellido: {apellido}, DNI: {dni}, telefono: {telefono}, ID trabajo: {id_trabajo}, edad: {edad[:-1]}, turno: {turno.capitalize()}.")
+    
+    archivo.close()
 
 def modificar_empleado():
     while True:
@@ -105,55 +174,77 @@ def modificar_empleado():
             break
         print("El ID debe ser un numero")
     
-    if id_empleado_modificar not in empleados:
-        print("El ID no existe")
-        return
+    with open("estructuras/empleados.txt", "r+", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
 
-    empleado = empleados[id_empleado_modificar]
-    etiquetas = ["id_trabajo", "turno", "nombre", "apellido", "dni", "telefono", "edad"]
-
-    for i in range(len(empleado)):
-        while True:
-            modificar = input(f"Desea modificar {etiquetas[i]} de {empleado[2]}, {empleado[3]}? 1 = Si, 2 = No: ")
-            if modificar in ["1","2"]:
-                break
-            print("La opcion debe ser 1 o 2")
-        if modificar != "1":
-            continue
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
         
-        while True:
-            nuevo_valor = input(f"Ingrese el nuevo valor de {etiquetas[i]}: ")
-            if etiquetas[i] == "id_trabajo":
-                if nuevo_valor in ["1","2"]:
-                    empleado[i] = int(nuevo_valor)
-                    break
-                print("La ID trabajo debe ser 1 o 2")
-            elif etiquetas[i] == "turno":
-                if nuevo_valor in ["mañana","tarde"]:
-                    empleado[i] = nuevo_valor
-                    break
-                print("El turno debe ser mañana o tarde")
-            elif etiquetas[i] == "edad":
-                if nuevo_valor.isdigit() and 18 <= int(nuevo_valor) <= 65:
-                    empleado[i] = int(nuevo_valor)
-                    break
-                print("la Edad debe ser un numero entre 18 y 65")
-            elif etiquetas[i] == "dni":
-                if nuevo_valor.isdigit() and len(nuevo_valor) == 8:
-                    dni_existe = False
-                    for emp_id, datos_emp in empleados.items():
-                        if emp_id != id_empleado_modificar and datos_emp[4] == nuevo_valor:
-                            dni_existe = True
-                            break
-                    if dni_existe:
-                        print("Ya existe un empleado con ese DNI")
-                    else:
-                        empleado[i] = nuevo_valor
+        if id_empleado_modificar not in range(1, len(lineas)):
+            print("El id dado no existe.")
+            return
+        
+        for linea in lineas:
+            empleado = linea.split(',')
+            
+            id = empleado[0]
+            
+            if id != id_empleado_modificar:
+                continue
+
+            etiquetas = ["id_trabajo", "turno", "nombre", "apellido", "dni", "telefono", "edad"]
+
+            for i in range(len(empleado)):
+                while True:
+                    modificar = input(f"Desea modificar {etiquetas[i]} de {empleado[2]}, {empleado[3]}? 1 = Si, 2 = No: ")
+                    if modificar in ["1","2"]:
                         break
-                else:
-                    print("El DNI debe ser 8 digitos")        
-            else:
-                if nuevo_valor.strip():
-                    empleado[i] = nuevo_valor
-                    break
-                print("El campo no puede estar vacio")
+                    print("La opcion debe ser 1 o 2")
+                if modificar != "1":
+                    continue
+                
+                while True:
+                    nuevo_valor = input(f"Ingrese el nuevo valor de {etiquetas[i]}: ")
+                    
+                    if etiquetas[i] == "id_trabajo":
+                        if nuevo_valor in ["1","2"]:
+                            empleado[i] = int(nuevo_valor)
+                            break
+                        print("La ID trabajo debe ser 1 o 2")
+                    
+                    elif etiquetas[i] == "turno":
+                        if nuevo_valor in ["mañana","tarde"]:
+                            empleado[i] = nuevo_valor
+                            break
+                        print("El turno debe ser mañana o tarde")
+                    
+                    elif etiquetas[i] == "edad":
+                        if nuevo_valor.isdigit() and 18 <= int(nuevo_valor) <= 65:
+                            empleado[i] = int(nuevo_valor)
+                            break
+                        print("la Edad debe ser un numero entre 18 y 65")
+                    
+                    elif etiquetas[i] == "dni":
+                        if nuevo_valor.isdigit() and len(nuevo_valor) == 8:
+                            dni_existe = False
+                            lista_dni = obtener_dni_empleados()
+
+                            for dni in lista_dni:
+                                if dni == nuevo_valor:
+                                    dni_existe = True
+                                    break
+                            
+                            if dni_existe:
+                                print("Ya existe un empleado con ese DNI")
+                            else:
+                                empleado[i] = nuevo_valor
+                                break
+                        else:
+                            print("El DNI debe ser 8 digitos")        
+                    
+                    else:
+                        if nuevo_valor.strip():
+                            empleado[i] = nuevo_valor
+                            break
+                        print("El campo no puede estar vacio")
