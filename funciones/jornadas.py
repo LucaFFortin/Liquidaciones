@@ -13,6 +13,7 @@ def agregar_jornada():
         print("La ID debe ser numero")
     
     id_existe = False
+
     with open("estructuras/empleados.txt", "r+", encoding="utf-8") as archivo:
         lineas = archivo.readlines()
 
@@ -23,7 +24,7 @@ def agregar_jornada():
         for linea in lineas:
             jornada = linea.split(',')
             
-            id = jornada[0]
+            id = int(jornada[0])
             
             if id != id_empleado:
                 continue
@@ -64,7 +65,7 @@ def mostrar_jornadas():
             empleado = linea.split(",")
 
             fecha, id_empleado, horario_entrada, horario_salida = empleado
-            print(f"Fecha: {fecha}, ID Empleado: {id_empleado}, Hora Entrada: {horario_entrada}, Hora Salida: {horario_salida}.")
+            print(f"Fecha: {fecha}, ID Empleado: {id_empleado}, Hora Entrada: {horario_entrada}, Hora Salida: {horario_salida[:-1]}.")
 
 def modificar_jornada():
     while True:
@@ -160,7 +161,7 @@ def eliminar_jornada():
         for idx, linea in enumerate(lineas):
             jornada = linea.split(",")
 
-            fecha, id_empleado, horario_entrada, horario_salida = jornada
+            fecha, id_empleado = jornada[0], int(jornada[1])
 
             if id_empleado != id_empleado_eliminar or fecha != fecha_eliminar:
                 continue
@@ -185,4 +186,4 @@ def eliminar_jornada():
 
         archivo.seek(0)
         archivo.truncate(0)
-        archivo.write(lineas)
+        archivo.writelines(lineas)
