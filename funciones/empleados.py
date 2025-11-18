@@ -5,14 +5,15 @@ def obtener_dni_empleados():
         lineas = archivo.readlines()
 
         if not lineas:
-            print("El archivo esta vacio.")
-            return
+            return []
         
         for linea in lineas:
             empleado = linea.split(',')
 
-            lista_dni.append(empleado[4])
-    
+            dni = empleado[4]
+
+            lista_dni.append(dni)
+
     return lista_dni    
 
 def obtener_ultimo_id(): 
@@ -20,12 +21,12 @@ def obtener_ultimo_id():
         lineas = archivo.readlines()
 
         if not lineas:
-            return
+            return 1
         
         ultima_linea = lineas[-1]
         
         if not ultima_linea:
-            return
+            return 1
         
         ultimo_id = ultima_linea.split(',')[0]
 
@@ -33,7 +34,7 @@ def obtener_ultimo_id():
 
 def agregar_empleado():
     archivo = open("estructuras/empleados.txt", "a+", encoding="utf-8")
-    contador_empleado = obtener_ultimo_id() + 1
+    contador_empleado = 1 if obtener_ultimo_id() == 1 else obtener_ultimo_id() + 1
 
     bandera = True
     while bandera:
@@ -52,13 +53,13 @@ def agregar_empleado():
         
         while True:
             nombre = input("Ingrese el nombre del empleado: ")
-            if nombre.strip().capitalize():
+            if nombre.strip():
                 break
             print("El nombre no puede estar vacio")
         
         while True:
             apellido = input("Ingrese el apellido del empleado: ")
-            if apellido.strip().capitalize():
+            if apellido.strip():
                 break
             print("El apellido no puede estar vacio")
         
@@ -81,9 +82,10 @@ def agregar_empleado():
         
         while True:
             telefono = input("Ingrese el telefono del empleado: ")
-            if telefono.strip():
+            if telefono.strip() and telefono.isdigit():
+                telefono = int(telefono)
                 break
-            print("El numero de telefono no puede estar vacio")
+            print("El numero de telefono debe ser un numero")
         
         while True:
             edad_input = input("Ingrese la edad del empleado: ")
@@ -92,7 +94,7 @@ def agregar_empleado():
                 break
             print("La edad debe ser un numero entre 18 y 65")
 
-        archivo.write(f"{contador_empleado},{id_trabajo},{turno},{nombre},{apellido},{dni},{telefono},{edad}\n")
+        archivo.write(f"{contador_empleado},{id_trabajo},{turno.capitalize()},{nombre.capitalize()},{apellido.capitalize()},{dni},{telefono},{edad}\n")
         
         while True:
             continuar = input("Desea ingresar otro empleado: 1 = Si, 2 = No: ")
@@ -125,7 +127,7 @@ def eliminar_empleado():
         
         id_existe = False
 
-        for linea in lineas:
+        for idx, linea in enumerate(lineas):
             empleado = linea.split(',')
 
             id, nombre, apellido = empleado[0], empleado[3], empleado[4]
@@ -138,7 +140,7 @@ def eliminar_empleado():
                         break
                     print("La opcion debe ser 1 o 2")
                 if confirmacion == "1":
-                    lineas.pop(empleado_a_eliminar - 1)            
+                    del lineas[idx]          
 
                     archivo.truncate(0)
                     archivo.writelines(lineas)
@@ -177,23 +179,23 @@ def modificar_empleado():
             print("El archivo esta vacio.")
             return
         
-        if id_empleado_modificar not in range(1, len(lineas)):
-            print("El id dado no existe.")
+        if id_empleado_modificar not in range(0, len(lineas) + 1):
+            print("El id dado no corresponde a ningun id de la base de datos.")
             return
         
-        for linea in lineas:
-            empleado = linea.split(',')
+        for idx, linea in enumerate(lineas):
+            empleado = linea.strip().split(',')
             
-            id = empleado[0]
-            
-            if id != id_empleado_modificar:
+            id_empleado = int(empleado[0])
+
+            if id_empleado != id_empleado_modificar:
                 continue
 
             etiquetas = ["id_trabajo", "turno", "nombre", "apellido", "dni", "telefono", "edad"]
 
-            for i in range(len(empleado)):
+            for i in range(0, len(empleado) - 1):
                 while True:
-                    modificar = input(f"Desea modificar {etiquetas[i]} de {empleado[2]}, {empleado[3]}? 1 = Si, 2 = No: ")
+                    modificar = input(f"Desea modificar {etiquetas[i]} de {empleado[3]} {empleado[4]}? 1 = Si, 2 = No: ")
                     if modificar in ["1","2"]:
                         break
                     print("La opcion debe ser 1 o 2")
@@ -202,22 +204,22 @@ def modificar_empleado():
                 
                 while True:
                     nuevo_valor = input(f"Ingrese el nuevo valor de {etiquetas[i]}: ")
-                    
+
                     if etiquetas[i] == "id_trabajo":
                         if nuevo_valor in ["1","2"]:
-                            empleado[i] = int(nuevo_valor)
+                            empleado[i + 1] = int(nuevo_valor)
                             break
                         print("La ID trabajo debe ser 1 o 2")
                     
                     elif etiquetas[i] == "turno":
-                        if nuevo_valor in ["mañana","tarde"]:
-                            empleado[i] = nuevo_valor
+                        if nuevo_valor.lower() in ["mañana","tarde"]:
+                            empleado[i + 1] = nuevo_valor
                             break
                         print("El turno debe ser mañana o tarde")
                     
                     elif etiquetas[i] == "edad":
                         if nuevo_valor.isdigit() and 18 <= int(nuevo_valor) <= 65:
-                            empleado[i] = int(nuevo_valor)
+                            empleado[i + 1] = int(nuevo_valor)
                             break
                         print("la Edad debe ser un numero entre 18 y 65")
                     
@@ -234,17 +236,21 @@ def modificar_empleado():
                             if dni_existe:
                                 print("Ya existe un empleado con ese DNI")
                             else:
-                                empleado[i] = nuevo_valor
+                                empleado[i + 1] = nuevo_valor
                                 break
                         else:
                             print("El DNI debe ser 8 digitos")        
-                    
-                    else:
-                        if nuevo_valor.strip():
-                            empleado[i] = nuevo_valor
+                    elif etiquetas[i] == "nombre" or etiquetas[i] == "apellido":
+                        empleado[i + 1] = nuevo_valor.capitalize()
+                        break
+                    elif etiquetas[i] == "telefono":
+                        if nuevo_valor.isdigit():
+                            empleado[i + 1] = nuevo_valor
                             break
-                        print("El campo no puede estar vacio")
+                        print("El telefono tiene que ser un numero")
             
-            archivo.seek(0)
-            archivo.truncate(0)
-            archivo.writelines(lineas)
+            lineas[idx] = ",".join(map(str, empleado))
+
+        archivo.seek(0)
+        archivo.truncate(0)
+        archivo.writelines(lineas)
