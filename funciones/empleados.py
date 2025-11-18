@@ -245,5 +245,6 @@ def modificar_empleado():
                             break
                         print("El campo no puede estar vacio")
             
+            archivo.seek(0)
             archivo.truncate(0)
             archivo.writelines(lineas)

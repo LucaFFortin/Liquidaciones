@@ -1,4 +1,3 @@
-from estructuras import empleados, montos_diarios, jornadas, tipo_trabajos
 from funciones.auxiliares import calcular_horas_trabajadas
 
 def calcular_monto():
@@ -14,27 +13,95 @@ def calcular_monto():
             id_empleado_calcular = int(id_input)
             break
         print("ID debe ser numerico")
+    
+    id_trabajo_empleado = 0
+    turno_empleado = ""
 
-    if id_empleado_calcular not in empleados:
-        print("El empleado no existe")
+    # Verificamos que el empleado exista
+    id_existe = False
+
+    # Guardamos los datos del empleado
+    datos_empleado = []
+    
+    with open("estructuras/empleados.txt", "r", -1, "utf-8") as archivo:           
+        lineas_empleado = archivo.readlines()
+        
+        if not lineas_empleado:
+            print("El archivo esta vacio.")
+            return
+        
+        for linea_empleado in lineas_empleado:
+            empleado = linea_empleado.split(',')
+
+            id = empleado[0]
+            id_trabajo_empleado = empleado[1]
+            turno_empleado = empleado[2]
+
+            if int(id) != id_empleado_calcular:
+                continue
+            
+            datos_empleado = empleado
+            id_existe = True
+
+    if not id_existe:
+        print("El id ingresado no existe.")
         return
+    
+    # Verificamos que la jornada exista
+    clave_jornada_existe = False
 
-    clave_jornada = (fecha_calcular, id_empleado_calcular)
-    if clave_jornada not in jornadas:
+    # Creamos una variable para almacenar la jornada
+    datos_jornada = []
+
+    with open("estructuras/jornadas.txt", "r", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
+
+        for linea in lineas:
+            jornada = linea.split(",")
+
+            fecha, id_empleado, horario_entrada, horario_salida = jornada
+
+            if fecha == fecha_calcular and id_empleado == id_empleado_calcular:
+                clave_jornada_existe = True
+                datos_jornada = jornada
+                
+    if not clave_jornada_existe:
         print("No existe jornada para esa fecha y empleado")
         return
 
-    id_trabajo_empleado = empleados[id_empleado_calcular][0]
-    turno_empleado = empleados[id_empleado_calcular][1]
-    clave_trabajo = (id_trabajo_empleado, turno_empleado)
+    # Verificamos que el tipo de trabajo exista
+    tipo_trabajo_existe = False
+
+    # Creamos una variable para almacenar el sueldo horario
+    sueldo_hora = 0
     
-    if clave_trabajo not in tipo_trabajos:
+    with open("estructuras/tipo_trabajos.txt", "r", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
+
+        for linea in lineas:
+            tipo_trabajo = linea.split(",")
+
+            id_trabajo, turno, puesto, sueldo_hora_trabajo, area = tipo_trabajo
+
+            if id_trabajo == id_trabajo_empleado and turno == turno_empleado:
+                tipo_trabajo_existe = True
+                sueldo_hora = sueldo_hora_trabajo
+
+    if not tipo_trabajo_existe:
         print("No existe configuracion de salario para ese puesto y turno")
         return
 
-    datos_jornada = jornadas[clave_jornada]
-    horario_entrada = datos_jornada[0]
-    horario_salida = datos_jornada[1]
+    # Calculamos las horas trabajadas
+    horario_entrada = datos_jornada[2]
+    horario_salida = datos_jornada[3]
     
     horas_trabajadas = calcular_horas_trabajadas(horario_entrada, horario_salida)
     horas_extra = 0
@@ -45,73 +112,144 @@ def calcular_monto():
     else:
         horas_normales = horas_trabajadas
 
-    sueldo_hora = tipo_trabajos[clave_trabajo][1]
     monto_dia = horas_normales * sueldo_hora + horas_extra * (sueldo_hora * 1.5)
     
-    nombre_empleado = empleados[id_empleado_calcular][2]
-    apellido_empleado = empleados[id_empleado_calcular][3]
+    # Mostramos los datos del empleado y el sueldo
+    nombre_empleado = datos_empleado[3]
+    apellido_empleado = datos_empleado[4]
     print(f"Empleado: {nombre_empleado} {apellido_empleado}")
     print(f"Horas trabajadas: {horas_trabajadas} (Normales: {horas_normales}, Extra: {horas_extra})")
     print(f"Sueldo por hora: ${sueldo_hora}")
     print(f"Monto del dia: ${monto_dia:.2f}")
     
     periodo = fecha_calcular[3:]
-    if id_empleado_calcular not in montos_diarios:
-        montos_diarios[id_empleado_calcular] = {}
-    if periodo not in montos_diarios[id_empleado_calcular]:
-        montos_diarios[id_empleado_calcular][periodo] = []
-    
-    for monto in montos_diarios[id_empleado_calcular][periodo]:
-        if monto[0] == fecha_calcular:
-            print("Ya existe un monto registrado para ese dia y empleado")
-            break
-    else:
-        montos_diarios[id_empleado_calcular][periodo].append([fecha_calcular, monto_dia, horas_trabajadas, horas_extra])
+
+    with open("estructuras/montos.txt", "a+", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+
+        if not lineas:
+            archivo.write(f"{id_empleado_calcular},{periodo},{fecha_calcular},{monto},{horas_trabajadas},{horas_extra}\n")
+            return
+
+        for linea in lineas:
+            monto = linea.strip().split(',')
+
+            id_empleado, periodo_monto = monto[0], monto[1]
+
+            if id_empleado == id_empleado_calcular and periodo_monto == fecha_calcular[3:]:
+                print("Ya hay un monto con el empleado y periodo propuestos.")
+                return
+            
+            nueva_linea = f"{id_empleado_calcular},{periodo},{fecha_calcular},{monto},{horas_trabajadas},{horas_extra}"
+            archivo.write(nueva_linea)
 
 def mostrar_montos():
-    if not montos_diarios:
-        print("No hay montos diarios registrados")
-    else:
-        for id_empleado, datos_monto in montos_diarios.items():
-            nombre, apellido = empleados[id_empleado][2], empleados[id_empleado][3]
-            print(f"Empleado: {nombre} {apellido}")
-            for periodo, datos_periodo in datos_monto.items():
-                print(f"Periodo: {periodo}")
-                for datos in datos_periodo:
-                    dia, monto, horas_trabajadas, horas_extra = datos
-                    print(f"Dia: {dia}, monto: {monto}, horas trabajadas: {horas_trabajadas}, horas extra: {horas_extra}")
+    id_empleado = 0
+    # Estructura montos_diarios = {(id_empleado, periodo): [fecha, monto, horas_trabajadas, horas_extra]}
+
+    with open("estructuras/montos.txt", "r", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
+
+        for linea in lineas:
+            monto = linea.strip().split(',')
+
+            id_empleado = int(monto[0])
+            periodo, fecha, monto, horas_trabajadas, horas_extra = monto[1:]
+
+            with open("estructuras/empleados.txt", "r", -1, "utf-8") as archivo:           
+                lineas_empleado = archivo.readlines()
+                
+                if not lineas_empleado:
+                    print("El archivo esta vacio.")
+                    return
+                
+                for linea_empleado in lineas_empleado:
+                    empleado = linea_empleado.split(',')
+                    id, nombre, apellido = empleado[0], empleado[3], empleado[4]
+
+                    if id != id_empleado:
+                        continue 
+                    
+                    print(f"Empleado: {nombre} {apellido}")
+                    print(f"Periodo: {periodo}")
+                    print(f"Dia: {fecha}, monto: {monto}, horas trabajadas: {horas_trabajadas}, horas extra: {horas_extra}")
 
 def actualizar_monto():
     empleado_actualizar = int(input("Ingrese el ID del empleado a actualizar el monto: "))
     periodo_actualizar = input("Ingrese el periodo a actualizar (MM/YYYY): ")
-    fecha_actualizar = input("Ingrese la fecha a actualizar (DD/MM/YYYY): ")
+
+    monto_existe = False
+
+    with open("estructuras/montos.txt", "a+", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+
+        if not lineas:
+            print("No hay montos en la base de datos.")
+            return
+
+        for idx, linea in enumerate(lineas):
+            monto = linea.strip().split(',')
+
+            id_empleado, periodo, fecha, monto, horas_trabajadas, horas_extra = monto
+
+            if id_empleado == empleado_actualizar and periodo == periodo_actualizar:
+                monto_existe = True
+
+                nuevo_monto_input = input("Ingrese el nuevo monto: Formato 25000.00 ")
+                if nuevo_monto_input.replace('.','',1).isdigit():
+                    nuevo_monto = float(nuevo_monto_input) / 100
+                    print("Monto actualizado correctamente")
+                else:
+                    print("El monto debe ser un numero")
+                break
+            
+            monto_actualizado = f"{empleado_actualizar},{periodo_actualizar},{fecha},{nuevo_monto},{horas_trabajadas},{horas_extra}"
+            lineas[idx] = monto_actualizado
+
+    if not monto_existe:
+        print("Monto no encontrado.")
+        return
     
-    montos = montos_diarios[empleado_actualizar][periodo_actualizar]
-    
-    for i in range(len(montos)):
-        if montos[i][0] == fecha_actualizar:
-            nuevo_monto_input = input("Ingrese el nuevo monto: ")
-            if nuevo_monto_input.replace('.','',1).isdigit():
-                nuevo_monto = float(nuevo_monto_input)
-                montos[i][1] = nuevo_monto
-                print("Monto actualizado correctamente")
-            else:
-                print("El monto debe ser un numero")
-            break
-    else:
-        print("No se encontro la fecha especificada")
+    archivo.seek(0)
+    archivo.truncate(0)
+    archivo.write(lineas)
 
 def eliminar_monto():
     empleado_eliminar = int(input("Ingrese el ID del empleado a eliminar el monto: "))
     periodo_eliminar = input("Ingrese el periodo a eliminar (MM/YYYY): ")
-    fecha_eliminar = input("Ingrese la fecha a eliminar (DD/MM/YYYY): ")
+
+    monto_existe = False
     
-    montos = montos_diarios[empleado_eliminar][periodo_eliminar]
-    
-    for i in range(len(montos)):
-        if montos[i][0] == fecha_eliminar:
-            montos.pop(i)
-            print("Monto eliminado correctamente")
-            break
-    else:
-        print("No se encontro la fecha especificada")
+    with open("estructuras/montos.txt", "a+", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+
+        if not lineas:
+            print("No hay montos en la base de datos.")
+            return
+
+        for idx, linea in enumerate(lineas):
+            monto = linea.strip().split(',')
+
+            id_empleado, periodo = monto[0], monto[1]
+
+            if id_empleado == empleado_eliminar and periodo == periodo_eliminar:
+                monto_existe = True
+                while True:
+                    confirmacion = input(f"Esta seguro de eliminar el monto con Id empleado: {id_empleado} y Periodo: {periodo_eliminar}, 1 = Si, 2 = No: ")
+                    if confirmacion in ["1","2"]:
+                        break
+                    print("La opcion debe ser 1 o 2")
+                if confirmacion == "1":           
+                    del lineas[idx]
+                                    
+                    archivo.seek(0)
+                    archivo.truncate(0)
+                    archivo.write(lineas)
+
+    if not monto_existe:
+        print("Monto no encontrado.")
+        return
