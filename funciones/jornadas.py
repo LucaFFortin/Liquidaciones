@@ -65,7 +65,7 @@ def mostrar_jornadas():
             empleado = linea.split(",")
 
             fecha, id_empleado, horario_entrada, horario_salida = empleado
-            print(f"Fecha: {fecha}, ID Empleado: {id_empleado}, Hora Entrada: {horario_entrada}, Hora Salida: {horario_salida[:-1]}.")
+            print(f"Fecha: {fecha}, ID Empleado: {id_empleado}, Hora Entrada: {horario_entrada}, Hora Salida: {horario_salida}.")
 
 def modificar_jornada():
     while True:
@@ -96,13 +96,13 @@ def modificar_jornada():
 
             fecha, id_empleado, horario_entrada, horario_salida = empleado
 
-            if id_empleado != id_empleado_modificar or fecha != fecha_modificar:
+            if int(id_empleado) != id_empleado_modificar or fecha != fecha_modificar:
                 continue
             
             jornada_existe = True
             etiquetas = ["Horario de entrada", "Horario de Salida"]
             
-            datos_jornada = [horario_entrada, horario_salida[:-1]]
+            datos_jornada = [horario_entrada, horario_salida]
             
             for i in range(0, len(datos_jornada)):
                 while True:
@@ -132,7 +132,7 @@ def modificar_jornada():
 
         archivo.seek(0)
         archivo.truncate(0)
-        archivo.write(lineas)
+        archivo.writelines(lineas)
 
 def eliminar_jornada():
     while True:
