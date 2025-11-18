@@ -5,7 +5,8 @@ from funciones.montos import actualizar_monto, calcular_monto, mostrar_montos, e
 from funciones.liquidaciones import calcular_liquidacion, mostrar_liquidaciones, eliminar_liquidacion
 
 def main():
-    mensaje = """Que operacion quiere realizar: 
+    mensaje = """------------------------------
+Que operacion quiere realizar: 
 Empleado:           1 = Agregar Empleado, 2 = Eliminar empleado, 3 = mostrar empleados, 4 = modificar empleado.
 Jornadas:           5 = Agregar jornada, 6 = Mostrar jornadas, 7 = Modificar horarios jornada, 8 = Eliminar Jornada.
 Cargos laborales:   9 = Agregar tipo trabajos, 10 = Mostrar tipos de trabajos, 11 = Modificar Tipo trabajo, 12 = Eliminar tipo trabajo.
