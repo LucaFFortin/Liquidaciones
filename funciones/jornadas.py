@@ -14,22 +14,21 @@ def agregar_jornada():
     
     id_existe = False
 
-    with open("estructuras/empleados.txt", "r+", encoding="utf-8") as archivo:
+    with open("estructuras/empleados.txt", "r", encoding="utf-8") as archivo:
         lineas = archivo.readlines()
 
         if not lineas:
             print("El archivo esta vacio.")
-            return
-        
-        for linea in lineas:
-            jornada = linea.split(',')
-            
-            id = int(jornada[0])
-            
-            if id != id_empleado:
-                continue
-            
-            id_existe = True
+        else:    
+            for linea in lineas:
+                jornada = linea.split(',')
+                
+                id = int(jornada[0])
+                
+                if id != id_empleado:
+                    continue
+                
+                id_existe = True
     
     if not id_existe:
         print("El empleado no existe")
@@ -62,10 +61,10 @@ def mostrar_jornadas():
             return
 
         for linea in lineas:
-            empleado = linea.split(",")
+            jornada = linea.split(",")
 
-            fecha, id_empleado, horario_entrada, horario_salida = empleado
-            print(f"Fecha: {fecha}, ID Empleado: {id_empleado}, Hora Entrada: {horario_entrada}, Hora Salida: {horario_salida}.")
+            fecha, id_empleado, horario_entrada, horario_salida = jornada
+            print(f"Fecha: {fecha}, ID Empleado: {id_empleado}, Hora Entrada: {horario_entrada}, Hora Salida: {horario_salida[:-1] if horario_salida.endswith("\n") else horario_salida}.")
 
 def modificar_jornada():
     while True:
@@ -92,9 +91,12 @@ def modificar_jornada():
         jornada_existe = False
 
         for idx, linea in enumerate(lineas):
-            empleado = linea.split(",")
+            jornada = linea.strip().split(",")
 
-            fecha, id_empleado, horario_entrada, horario_salida = empleado
+            if jornada == "":
+                continue
+
+            fecha, id_empleado, horario_entrada, horario_salida = jornada
 
             if int(id_empleado) != id_empleado_modificar or fecha != fecha_modificar:
                 continue
@@ -120,7 +122,7 @@ def modificar_jornada():
                         break
                     print("La hora debe ser entre 00 y 23")
             
-            nueva_linea = f"{fecha},{id_empleado},{datos_jornada[0]},{datos_jornada[1]}"
+            nueva_linea = f"{fecha},{id_empleado},{datos_jornada[0]},{datos_jornada[1]}\n"
 
             lineas[idx] = nueva_linea
 

@@ -18,23 +18,18 @@ def obtener_dni_empleados():
 
 def obtener_ultimo_id(): 
     with open("estructuras/empleados.txt", "r", encoding="utf-8") as archivo:
-        lineas = archivo.readlines()
+        lineas = [l.strip() for l in archivo.readlines() if l.strip()]
 
         if not lineas:
             return 1
         
         ultima_linea = lineas[-1]
-        
-        if not ultima_linea:
-            return 1
-        
         ultimo_id = ultima_linea.split(',')[0]
-
         return int(ultimo_id)
 
 def agregar_empleado():
-    archivo = open("estructuras/empleados.txt", "a+", encoding="utf-8")
-    contador_empleado = 1 if obtener_ultimo_id() == 1 else obtener_ultimo_id() + 1
+    archivo = open("estructuras/empleados.txt", "a", encoding="utf-8")
+    contador_empleado = obtener_ultimo_id() + 1
 
     bandera = True
     while bandera:
@@ -249,7 +244,7 @@ def modificar_empleado():
                             break
                         print("El telefono tiene que ser un numero")
             
-            lineas[idx] = ",".join(map(str, empleado))
+            lineas[idx] = ",".join(map(str, empleado)) + "\n"
 
         archivo.seek(0)
         archivo.truncate(0)
