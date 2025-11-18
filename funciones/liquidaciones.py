@@ -1,5 +1,7 @@
 from estructuras import montos_diarios, liquidaciones
 
+# TODO: crear funcion obtener id liquidacion
+
 id_liquidacion = 21
 
 def calcular_liquidacion():
@@ -7,37 +9,66 @@ def calcular_liquidacion():
     empleado_liquidar = int(input("Ingrese el ID del empleado a liquidar: "))
     periodo_liquidar = input("Ingrese el periodo a liquidar (MM/YYYY): ")
     
-    if empleado_liquidar not in montos_diarios or periodo_liquidar not in montos_diarios[empleado_liquidar]:
-        print("No hay montos registrados para ese empleado y periodo")
-        return
-    
-    montos = montos_diarios[empleado_liquidar][periodo_liquidar]
-    
+    montos_existe = False
     total = 0
     horas_extra_total = 0
-    
-    for monto in montos:
-        total += monto[1]
-        horas_extra_total += monto[3]
+
+    with open("estructuras/montos.txt", "r", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
+
+        for linea in lineas:
+            monto = linea.strip().split(',')
+
+            id_empleado = int(monto[0])
+            periodo, monto_empleado, horas_extra = monto[0], monto[2], monto[4]
+
+            if id_empleado != empleado_liquidar or periodo != periodo_liquidar:
+                continue
+            
+            montos_existe = True
+
+            total += monto_empleado
+            horas_extra_total += horas_extra
+
+    if not montos_existe:
+        print("No hay montos para el empleado y/o periodo ingresados.")
+        return
     
     jubilacion = total * 0.11
     pensiones = total * 0.03
     obra_social = total * 0.03
     bruto = total
     neto = total - jubilacion - pensiones - obra_social
-    
-    print("Sueldo bruto: ", bruto, "\n Deduccion pension: ", pensiones, "\n Deducion obra social: ", obra_social, "\n Total: ", neto)
+    deducciones = bruto - neto
 
-    liquidaciones[id_liquidacion] = [empleado_liquidar, bruto, horas_extra_total, jubilacion + pensiones + obra_social, periodo_liquidar]
-    id_liquidacion += 1
+    with open("estructuras/liquidaciones.txt", "a+", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
+
+        # Estructura liquidaciones = {id_liquidacion: [id_empleado, sueldo_bruto, horas_extra, deducciones, periodo]}
+        archivo.write(f"{id_liquidacion},{empleado_liquidar},{bruto},{horas_extra_total},{deducciones},{periodo_liquidar}")
 
 def mostrar_liquidaciones():
-    if not liquidaciones:
-        print("No hay liquidaciones registradas")
-    else:
-        for clave, datos in liquidaciones.items():
-            empleado, bruto, horas_extra, deducciones, periodo = datos
-            print(f"ID Liquidacion: {clave}, Empleado: {empleado}, Sueldo Bruto: {bruto}, Horas Extra: {horas_extra}, Deducciones: {deducciones}, Periodo: {periodo}.")
+    with open("estructuras/liquidaciones.txt", "a+", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
+        
+        for linea in lineas:
+            liquidacion = linea.strip().split(',')
+
+            id_liquidacion, id_empleado, sueldo_bruto, horas_extra, deducciones, periodo = liquidacion
+            print(f"ID Liquidacion: {id_liquidacion}, ID Empleado: {id_empleado}, Sueldo Bruto: {sueldo_bruto}, Horas Extra: {horas_extra}, Deducciones: {deducciones}, Periodo: {periodo}.")
+
 
 def eliminar_liquidacion():
     while True:
@@ -47,14 +78,36 @@ def eliminar_liquidacion():
             break
         print("El ID debe ser un numero")
     
-    if id_liquidacion_eliminar not in liquidaciones:
-        print("La liquidacion no existe")
-    else:
-        while True:
-            confirmacion = input(f"Esta seguro de eliminar la liquidacion con ID {id_liquidacion_eliminar}, 1 = Si, 2 = No: ")
-            if confirmacion in ["1","2"]:
-                break
-            print("La opcion debe ser 1 o 2")
-        if confirmacion == "1":
-            liquidaciones.pop(id_liquidacion_eliminar)
-            print("Liquidacion eliminada correctamente")
+    liquidacion_existe = False
+
+    with open("estructuras/liquidaciones.txt", "a+", encoding="utf-8") as archivo:
+        lineas = archivo.readlines()
+
+        if not lineas:
+            print("El archivo esta vacio.")
+            return
+        
+        for idx, linea in enumerate(lineas):
+            liquidacion = linea.strip().split(',')
+
+            id_liquidacion, id_empleado, sueldo_bruto, horas_extra, deducciones, periodo = liquidacion
+
+            if id_liquidacion != id_liquidacion_eliminar:
+                continue
+
+            liquidacion_existe = True
+
+            while True:
+                confirmacion = input(f"Esta seguro de eliminar la liquidacion con el ID liquidación: {id_liquidacion_eliminar} y ID empleado: {id_empleado}, 1 = Si, 2 = No: ")
+                if confirmacion in ["1","2"]:
+                    break
+                print("La opcion debe ser 1 o 2")
+            if confirmacion == "1":           
+                del lineas[idx]
+
+                archivo.seek(0)
+                archivo.truncate(0)
+                archivo.write(lineas)
+
+    if not liquidacion_existe:
+        print("No hay una liquidación con el ID ingresado.")
