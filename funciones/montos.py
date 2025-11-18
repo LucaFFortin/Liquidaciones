@@ -28,20 +28,19 @@ def calcular_monto():
         
         if not lineas_empleado:
             print("El archivo esta vacio.")
-            return
-        
-        for linea_empleado in lineas_empleado:
-            empleado = linea_empleado.split(',')
+        else:    
+            for linea_empleado in lineas_empleado:
+                empleado = linea_empleado.split(',')
 
-            id = empleado[0]
-            id_trabajo_empleado = empleado[1]
-            turno_empleado = empleado[2]
+                id = empleado[0]
+                id_trabajo_empleado = empleado[1]
+                turno_empleado = empleado[2]
 
-            if int(id) != id_empleado_calcular:
-                continue
-            
-            datos_empleado = empleado
-            id_existe = True
+                if int(id) != id_empleado_calcular:
+                    continue
+                
+                datos_empleado = empleado
+                id_existe = True
 
     if not id_existe:
         print("El id ingresado no existe.")
@@ -65,7 +64,7 @@ def calcular_monto():
 
             fecha, id_empleado, horario_entrada, horario_salida = jornada
 
-            if fecha == fecha_calcular and id_empleado == id_empleado_calcular:
+            if fecha == fecha_calcular and int(id_empleado) == id_empleado_calcular:
                 clave_jornada_existe = True
                 datos_jornada = jornada
                 
@@ -93,7 +92,7 @@ def calcular_monto():
 
             if id_trabajo == id_trabajo_empleado and turno == turno_empleado:
                 tipo_trabajo_existe = True
-                sueldo_hora = sueldo_hora_trabajo
+                sueldo_hora = int(sueldo_hora_trabajo)
 
     if not tipo_trabajo_existe:
         print("No existe configuracion de salario para ese puesto y turno")
@@ -128,7 +127,7 @@ def calcular_monto():
         lineas = archivo.readlines()
 
         if not lineas:
-            archivo.write(f"{id_empleado_calcular},{periodo},{fecha_calcular},{monto},{horas_trabajadas},{horas_extra}\n")
+            archivo.write(f"{id_empleado_calcular},{periodo},{fecha_calcular},{monto_dia},{horas_trabajadas},{horas_extra}\n")
             return
 
         for linea in lineas:
@@ -144,7 +143,6 @@ def calcular_monto():
             archivo.write(nueva_linea)
 
 def mostrar_montos():
-    id_empleado = 0
     # Estructura montos_diarios = {(id_empleado, periodo): [fecha, monto, horas_trabajadas, horas_extra]}
 
     with open("estructuras/montos.txt", "r", encoding="utf-8") as archivo:
@@ -171,7 +169,7 @@ def mostrar_montos():
                     empleado = linea_empleado.split(',')
                     id, nombre, apellido = empleado[0], empleado[3], empleado[4]
 
-                    if id != id_empleado:
+                    if int(id) != id_empleado:
                         continue 
                     
                     print(f"Empleado: {nombre} {apellido}")
@@ -181,75 +179,91 @@ def mostrar_montos():
 def actualizar_monto():
     empleado_actualizar = int(input("Ingrese el ID del empleado a actualizar el monto: "))
     periodo_actualizar = input("Ingrese el periodo a actualizar (MM/YYYY): ")
+    fecha_actualizar = input("Ingrese la fecha a actualizar (DD/MM/YYYY): ")
 
     monto_existe = False
 
-    with open("estructuras/montos.txt", "a+", encoding="utf-8") as archivo:
+    with open("estructuras/montos.txt", "r", encoding="utf-8") as archivo:
         lineas = archivo.readlines()
 
-        if not lineas:
-            print("No hay montos en la base de datos.")
-            return
+    if not lineas:
+        print("No hay montos en la base de datos.")
+        return
 
-        for idx, linea in enumerate(lineas):
-            monto = linea.strip().split(',')
+    for idx, linea in enumerate(lineas):
+        partes = linea.strip().split(',')
 
-            id_empleado, periodo, fecha, monto, horas_trabajadas, horas_extra = monto
+        if len(partes) < 6:
+            continue
 
-            if id_empleado == empleado_actualizar and periodo == periodo_actualizar:
-                monto_existe = True
+        id_empleado, periodo, fecha, monto, horas_trabajadas, horas_extra = partes
 
-                nuevo_monto_input = input("Ingrese el nuevo monto: Formato 25000.00 ")
-                if nuevo_monto_input.replace('.','',1).isdigit():
-                    nuevo_monto = float(nuevo_monto_input) / 100
-                    print("Monto actualizado correctamente")
-                else:
-                    print("El monto debe ser un numero")
-                break
-            
-            monto_actualizado = f"{empleado_actualizar},{periodo_actualizar},{fecha},{nuevo_monto},{horas_trabajadas},{horas_extra}"
-            lineas[idx] = monto_actualizado
+        if (
+            int(id_empleado) == empleado_actualizar and
+            periodo == periodo_actualizar and
+            fecha == fecha_actualizar
+        ):
+            monto_existe = True
+
+            nuevo_monto_input = input("Ingrese el nuevo monto: ")
+            try:
+                nuevo_monto = int(nuevo_monto_input)
+            except:
+                print("El monto debe ser un número.")
+                return
+
+            lineas[idx] = f"{id_empleado},{periodo},{fecha},{nuevo_monto},{horas_trabajadas},{horas_extra}\n"
+            break
 
     if not monto_existe:
         print("Monto no encontrado.")
         return
-    
-    archivo.seek(0)
-    archivo.truncate(0)
-    archivo.write(lineas)
+
+    with open("estructuras/montos.txt", "w", encoding="utf-8") as archivo:
+        archivo.writelines(lineas)
+
+    print("Monto actualizado correctamente.")
 
 def eliminar_monto():
     empleado_eliminar = int(input("Ingrese el ID del empleado a eliminar el monto: "))
     periodo_eliminar = input("Ingrese el periodo a eliminar (MM/YYYY): ")
+    fecha_eliminar = input("Ingrese el periodo a eliminar (DD/MM/YYYY): ")
 
-    monto_existe = False
-    
-    with open("estructuras/montos.txt", "a+", encoding="utf-8") as archivo:
+    with open("estructuras/montos.txt", "r", encoding="utf-8") as archivo:
         lineas = archivo.readlines()
 
-        if not lineas:
-            print("No hay montos en la base de datos.")
-            return
+    if not lineas:
+        print("No hay montos en la base de datos.")
+        return
 
-        for idx, linea in enumerate(lineas):
-            monto = linea.strip().split(',')
+    monto_existe = False
 
-            id_empleado, periodo = monto[0], monto[1]
+    for idx, linea in enumerate(lineas):
+        partes = linea.strip().split(',')
+        if len(partes) < 6:
+            continue
 
-            if id_empleado == empleado_eliminar and periodo == periodo_eliminar:
-                monto_existe = True
-                while True:
-                    confirmacion = input(f"Esta seguro de eliminar el monto con Id empleado: {id_empleado} y Periodo: {periodo_eliminar}, 1 = Si, 2 = No: ")
-                    if confirmacion in ["1","2"]:
-                        break
-                    print("La opcion debe ser 1 o 2")
-                if confirmacion == "1":           
-                    del lineas[idx]
-                                    
-                    archivo.seek(0)
-                    archivo.truncate(0)
-                    archivo.write(lineas)
+        id_empleado, periodo, fecha = partes[0], partes[1], partes[2]
+
+        if int(id_empleado) == empleado_eliminar and periodo == periodo_eliminar and fecha == fecha_eliminar:
+            monto_existe = True
+
+            confirmacion = input(
+                f"¿Está seguro de eliminar el monto del empleado {id_empleado} en el periodo {periodo}? "
+                "(1 = Sí, 2 = No): "
+            )
+
+            if confirmacion == "1":
+                del lineas[idx]
+
+                with open("estructuras/montos.txt", "w", encoding="utf-8") as archivo:
+                    archivo.writelines(lineas)
+
+                print("Monto eliminado correctamente.")
+            else:
+                print("Operación cancelada.")
+            break
 
     if not monto_existe:
         print("Monto no encontrado.")
-        return
+

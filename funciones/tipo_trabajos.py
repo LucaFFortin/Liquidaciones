@@ -1,7 +1,7 @@
 def agregar_tipo_trabajo():
     while True:
         id_input = input("Ingrese el ID del puesto: ")
-        if id_input.isdigit() and int(id_input) in [1, 2]:
+        if id_input.isdigit():
             id_trabajo = int(id_input)
             break
         print("La ID debe ser numero.")
@@ -15,11 +15,9 @@ def agregar_tipo_trabajo():
     tipo_trabajo_existe = False
 
     with open("estructuras/tipo_trabajos.txt", "r", encoding="utf-8") as archivo:
-        lineas = archivo.readlines()
+        lineas = [l for l in archivo.readlines() if l.strip()]
 
-        if not lineas:
-            print("El archivo esta vacio.")
-        else:
+        if lineas:
             for linea in lineas:
                 tipo_trabajo = linea.split(",")
 
@@ -58,7 +56,7 @@ def agregar_tipo_trabajo():
 def mostrar_tipos_trabajos():
 
     with open("estructuras/tipo_trabajos.txt", "r", encoding="utf-8") as archivo:
-        lineas = archivo.readlines()
+        lineas = [l for l in archivo.readlines() if l.strip()]
 
         if not lineas:
             print("El archivo esta vacio.")
@@ -88,7 +86,7 @@ def modificar_tipo_trabajo():
     tipo_trabajo_existe = False
     
     with open("estructuras/tipo_trabajos.txt", "r", encoding="utf-8") as archivo:
-        lineas = archivo.readlines()
+        lineas = [l for l in archivo.readlines() if l.strip()]
 
         if not lineas:
             print("El archivo esta vacio.")
@@ -106,7 +104,7 @@ def modificar_tipo_trabajo():
         return
 
     with open("estructuras/tipo_trabajos.txt", "r+", encoding="utf-8") as archivo:
-        lineas = archivo.readlines()
+        lineas = [l for l in archivo.readlines() if l.strip()]
 
         if not lineas:
             print("El archivo esta vacio.")
@@ -116,7 +114,6 @@ def modificar_tipo_trabajo():
 
         for idx, linea in enumerate(lineas):
             tipo_trabajo = linea.split(",")
-            print(tipo_trabajo)
             id_trabajo, turno, puesto, sueldo_hora, area = tipo_trabajo
             
             if int(id_trabajo) != id_trabajo_modificar:
@@ -170,13 +167,13 @@ def eliminar_tipo_trabajo():
         print("ID debe ser numero")
     
     while True:
-        turno_eliminar = input("Ingrese el turno del puesto que quiere eliminar (Manana o Tarde): ").lower()
-        if turno_eliminar in ["manana","tarde"]:
+        turno_eliminar = input("Ingrese el turno del puesto que quiere eliminar (Mañana o Tarde): ").lower()
+        if turno_eliminar in ["mañana","tarde"]:
             break
         print("Turno debe ser manana o tarde")
     
-    with open("estructuras/jornadas.txt", "r+", encoding="utf-8") as archivo:
-        lineas = archivo.readlines()
+    with open("estructuras/tipo_trabajos.txt", "r+", encoding="utf-8") as archivo:
+        lineas = [l for l in archivo.readlines() if l.strip()]
 
         if not lineas:
             print("El archivo esta vacio.")
@@ -187,9 +184,9 @@ def eliminar_tipo_trabajo():
         for idx, linea in enumerate(lineas):
             tipo_trabajo = linea.split(",")
 
-            id_trabajo, turno, puesto, sueldo_hora, area = tipo_trabajo
-            
-            if id_trabajo != id_trabajo_eliminar or turno != turno_eliminar:
+            id_trabajo, turno = tipo_trabajo[0], tipo_trabajo[1]
+
+            if int(id_trabajo) != id_trabajo_eliminar or turno != turno_eliminar:
                 continue
         
             tipo_trabajo_encontrada = True
@@ -200,7 +197,7 @@ def eliminar_tipo_trabajo():
                     break
                 print("Opcion debe ser 1 o 2")
             if confirmacion == "1":
-                lineas.pop(idx)
+                del lineas[idx]
                 print("Tipo de trabajo eliminado correctamente")
 
         if not tipo_trabajo_encontrada:
@@ -209,5 +206,5 @@ def eliminar_tipo_trabajo():
 
         archivo.seek(0)
         archivo.truncate(0)
-        archivo.write(lineas)
+        archivo.writelines(lineas)
 

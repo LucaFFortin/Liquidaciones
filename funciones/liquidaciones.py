@@ -2,10 +2,19 @@ from estructuras import montos_diarios, liquidaciones
 
 # TODO: crear funcion obtener id liquidacion
 
-id_liquidacion = 21
+def obtener_ultimo_id(): 
+    with open("estructuras/liquidaciones.txt", "r", encoding="utf-8") as archivo:
+        lineas = [l.strip() for l in archivo.readlines() if l.strip()]
+
+        if not lineas:
+            return 1
+        
+        ultima_linea = lineas[-1]
+        ultimo_id = ultima_linea.split(',')[0]
+        return int(ultimo_id)
 
 def calcular_liquidacion():
-    global id_liquidacion
+    id_liquidacion = obtener_ultimo_id() + 1
     empleado_liquidar = int(input("Ingrese el ID del empleado a liquidar: "))
     periodo_liquidar = input("Ingrese el periodo a liquidar (MM/YYYY): ")
     
@@ -24,15 +33,15 @@ def calcular_liquidacion():
             monto = linea.strip().split(',')
 
             id_empleado = int(monto[0])
-            periodo, monto_empleado, horas_extra = monto[0], monto[2], monto[4]
+            periodo, monto_empleado, horas_extra = monto[1], monto[3], monto[4]
 
             if id_empleado != empleado_liquidar or periodo != periodo_liquidar:
                 continue
             
             montos_existe = True
 
-            total += monto_empleado
-            horas_extra_total += horas_extra
+            total += int(monto_empleado)
+            horas_extra_total += int(horas_extra)
 
     if not montos_existe:
         print("No hay montos para el empleado y/o periodo ingresados.")
@@ -45,7 +54,7 @@ def calcular_liquidacion():
     neto = total - jubilacion - pensiones - obra_social
     deducciones = bruto - neto
 
-    with open("estructuras/liquidaciones.txt", "a+", encoding="utf-8") as archivo:
+    with open("estructuras/liquidaciones.txt", "r+", encoding="utf-8") as archivo:
         lineas = archivo.readlines()
 
         if not lineas:
@@ -53,10 +62,11 @@ def calcular_liquidacion():
             return
 
         # Estructura liquidaciones = {id_liquidacion: [id_empleado, sueldo_bruto, horas_extra, deducciones, periodo]}
-        archivo.write(f"{id_liquidacion},{empleado_liquidar},{bruto},{horas_extra_total},{deducciones},{periodo_liquidar}")
+        archivo.write(f"{id_liquidacion},{empleado_liquidar},{bruto},{horas_extra_total},{deducciones},{periodo_liquidar}\n")
+        print(f"liquidacion realizada: {id_liquidacion}, {empleado_liquidar}, {bruto}, {horas_extra_total}, {deducciones}, {periodo_liquidar}")
 
 def mostrar_liquidaciones():
-    with open("estructuras/liquidaciones.txt", "a+", encoding="utf-8") as archivo:
+    with open("estructuras/liquidaciones.txt", "r", encoding="utf-8") as archivo:
         lineas = archivo.readlines()
 
         if not lineas:
@@ -80,7 +90,7 @@ def eliminar_liquidacion():
     
     liquidacion_existe = False
 
-    with open("estructuras/liquidaciones.txt", "a+", encoding="utf-8") as archivo:
+    with open("estructuras/liquidaciones.txt", "r+", encoding="utf-8") as archivo:
         lineas = archivo.readlines()
 
         if not lineas:
@@ -92,7 +102,7 @@ def eliminar_liquidacion():
 
             id_liquidacion, id_empleado, sueldo_bruto, horas_extra, deducciones, periodo = liquidacion
 
-            if id_liquidacion != id_liquidacion_eliminar:
+            if int(id_liquidacion) != id_liquidacion_eliminar:
                 continue
 
             liquidacion_existe = True
@@ -107,7 +117,7 @@ def eliminar_liquidacion():
 
                 archivo.seek(0)
                 archivo.truncate(0)
-                archivo.write(lineas)
+                archivo.writelines(lineas)
 
     if not liquidacion_existe:
         print("No hay una liquidación con el ID ingresado.")
